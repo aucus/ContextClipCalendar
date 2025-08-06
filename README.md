@@ -31,7 +31,7 @@
 
 1. **저장소 클론** / **Clone repository**
    ```bash
-   git clone https://github.com/yourusername/ContextClipCalendar.git
+   git clone https://github.com/aucus/ContextClipCalendar.git
    cd ContextClipCalendar
    ```
 
@@ -203,9 +203,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 지원 / Support
 
-- **이슈 리포트**: [GitHub Issues](https://github.com/yourusername/ContextClipCalendar/issues)
-- **기능 요청**: [GitHub Discussions](https://github.com/yourusername/ContextClipCalendar/discussions)
-- **문서**: [Wiki](https://github.com/yourusername/ContextClipCalendar/wiki)
+- **이슈 리포트**: [GitHub Issues](https://github.com/aucus/ContextClipCalendar/issues)
+- **기능 요청**: [GitHub Discussions](https://github.com/aucus/ContextClipCalendar/discussions)
+- **문서**: [Wiki](https://github.com/aucus/ContextClipCalendar/wiki)
 
 ---
 
