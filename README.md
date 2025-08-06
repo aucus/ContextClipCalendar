@@ -206,6 +206,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **이슈 리포트**: [GitHub Issues](https://github.com/aucus/ContextClipCalendar/issues)
 - **기능 요청**: [GitHub Discussions](https://github.com/aucus/ContextClipCalendar/discussions)
 - **문서**: [Wiki](https://github.com/aucus/ContextClipCalendar/wiki)
+- **개인정보처리방침**: [Privacy Policy](https://github.com/aucus/ContextClipCalendar/blob/main/PRIVACY_POLICY.md)
 
 ---
 
