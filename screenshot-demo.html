@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContextClipCalendar - 스크린샷 데모</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1f2937;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .popup-demo {
+            width: 420px;
+            min-height: 320px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 1rem;
+            padding: 0.75rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .popup-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        
+        .popup-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .text-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .text-label::before {
+            content: '📝';
+            font-size: 1rem;
+        }
+        
+        .selected-text {
+            font-size: 0.875rem;
+            color: #374151;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-left: 4px solid #10b981;
+            line-height: 1.5;
+        }
+        
+        .button {
+            width: 100%;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: white;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .settings-btn {
+            width: 100%;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-desc {
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        
+        .usage-example {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .example-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .example-text {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+        
+        .example-result {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .result-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 ContextClipCalendar</h1>
+            <p>AI 기반 스마트 일정 등록 Chrome 확장 프로그램</p>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">🎯 주요 기능</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <div class="feature-title">AI 기반 텍스트 분석</div>
+                    <div class="feature-desc">복사한 텍스트를 AI가 자동으로 분석하여 일정 정보를 정확하게 추출합니다.</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <div class="feature-title">Google Calendar 연동</div>
+                    <div class="feature-desc">추출된 정보를 Google Calendar에 즉시 등록하고 중복 일정을 자동으로 방지합니다.</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🌏</div>
+                    <div class="feature-title">한국어 완벽 지원</div>
+                    <div class="feature-desc">한국어 자연어 처리와 한국 시간대를 자동으로 적용합니다.</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🖱️</div>
+                    <div class="feature-title">편리한 사용법</div>
+                    <div class="feature-desc">클립보드 텍스트 자동 인식과 웹페이지에서 우클릭으로 일정 등록이 가능합니다.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">💻 확장 프로그램 인터페이스</h2>
+            <div class="popup-demo">
+                <div class="popup-header">
+                    <div class="logo">📅</div>
+                    <div>
+                        <h3 style="margin: 0; color: #1f2937; font-size: 1.25rem;">ContextClipCalendar</h3>
+                        <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">AI 기반 스마트 일정 등록</p>
+                    </div>
+                </div>
+                
+                <div class="popup-content">
+                    <div class="text-label">선택된 텍스트</div>
+                    <div class="selected-text">
+                        내일 오후 3시에 팀 미팅이 있습니다.<br>
+                        참석자: john@company.com, jane@company.com<br>
+                        장소: 회의실 A
+                    </div>
+                </div>
+                
+                <button class="button">
+                    📅 일정 등록
+                </button>
+                
+                <button class="settings-btn">
+                    ⚙️ 설정
+                </button>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">💡 사용 예시</h2>
+            <div class="usage-example">
+                <div class="example-title">📋 복사할 텍스트:</div>
+                <div class="example-text">
+내일 오후 3시에 팀 미팅이 있습니다.
+참석자: john@company.com, jane@company.com
+장소: 회의실 A
+                </div>
+                
+                <div class="example-title">✅ AI 분석 결과:</div>
+                <div class="example-result">
+                    <div class="result-item">
+                        <span class="result-label">제목:</span> 팀 미팅
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">시간:</span> 내일 오후 3시
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">참석자:</span> john@company.com, jane@company.com
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">설명:</span> 장소: 회의실 A
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">🚀 사용 방법</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div style="text-align: center; padding: 1.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.75rem;">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">1️⃣</div>
+                    <h3 style="margin: 0 0 0.5rem 0; color: #059669;">텍스트 복사</h3>
+                    <p style="margin: 0; color: #6b7280;">일정 정보가 포함된 텍스트를 복사합니다</p>
+                </div>
+                
+                <div style="text-align: center; padding: 1.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.75rem;">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">2️⃣</div>
+                    <h3 style="margin: 0 0 0.5rem 0; color: #059669;">확장 프로그램 클릭</h3>
+                    <p style="margin: 0; color: #6b7280;">브라우저 툴바의 확장 프로그램 아이콘을 클릭합니다</p>
+                </div>
+                
+                <div style="text-align: center; padding: 1.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.75rem;">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">3️⃣</div>
+                    <h3 style="margin: 0 0 0.5rem 0; color: #059669;">일정 등록</h3>
+                    <p style="margin: 0; color: #6b7280;">AI가 분석한 일정 정보를 확인하고 등록합니다</p>
+                </div>
+                
+                <div style="text-align: center; padding: 1.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.75rem;">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">4️⃣</div>
+                    <h3 style="margin: 0 0 0.5rem 0; color: #059669;">완료</h3>
+                    <p style="margin: 0; color: #6b7280;">Google Calendar에 자동으로 등록됩니다</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
