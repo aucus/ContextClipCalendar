@@ -201,6 +201,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Google Calendar API**: 일정 관리 기능
 - **Chrome Extensions**: 확장 프로그램 개발 플랫폼
 
+## 💝 기부하기 / Donate
+
+이 프로젝트가 도움이 되셨다면 기부를 고려해주세요!  
+If this project helped you, please consider donating!
+
+[![PayPal 기부](https://img.shields.io/badge/PayPal-Donate-blue?logo=paypal&style=for-the-badge)](https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID)
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-Support-red?logo=github&style=for-the-badge)](https://github.com/sponsors/aucus)
+
+**PayPal 계정**: aucus76@gmail.com
+
+[자세한 기부 정보 보기 →](https://github.com/aucus/ContextClipCalendar/blob/main/DONATE.md)
+
 ## 📞 지원 / Support
 
 - **이슈 리포트**: [GitHub Issues](https://github.com/aucus/ContextClipCalendar/issues)
