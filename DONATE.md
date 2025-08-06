@@ -16,7 +16,7 @@ Thank you for supporting the ContextClipCalendar project!
 
 ### PayPal 기부
 
-[![PayPal 기부](https://img.shields.io/badge/PayPal-Donate-blue?logo=paypal&style=for-the-badge)](https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID)
+[![PayPal 기부](https://img.shields.io/badge/PayPal-Donate-blue?logo=paypal&style=for-the-badge)](https://www.paypal.com/paypalme/aucus76)
 
 **PayPal 계정**: aucus76@gmail.com
 
@@ -109,7 +109,7 @@ This project is developed as open source and available for free to all users. Ho
 
 ### PayPal Donation
 
-[![PayPal Donate](https://img.shields.io/badge/PayPal-Donate-blue?logo=paypal&style=for-the-badge)](https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID)
+[![PayPal Donate](https://img.shields.io/badge/PayPal-Donate-blue?logo=paypal&style=for-the-badge)](https://www.paypal.com/paypalme/aucus76)
 
 **PayPal Account**: aucus76@gmail.com
 

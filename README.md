@@ -206,7 +206,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 이 프로젝트가 도움이 되셨다면 기부를 고려해주세요!  
 If this project helped you, please consider donating!
 
-[![PayPal 기부](https://img.shields.io/badge/PayPal-Donate-blue?logo=paypal&style=for-the-badge)](https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID)
+[![PayPal 기부](https://img.shields.io/badge/PayPal-Donate-blue?logo=paypal&style=for-the-badge)](https://www.paypal.com/paypalme/aucus76)
 [![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-Support-red?logo=github&style=for-the-badge)](https://github.com/sponsors/aucus)
 
 **PayPal 계정**: aucus76@gmail.com
