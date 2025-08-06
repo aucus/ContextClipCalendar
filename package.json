@@ -1,0 +1,23 @@
+{
+  "name": "contextclipcalendar",
+  "version": "1.0.0",
+  "description": "[![Chrome Extension](https://img.shields.io/badge/Chrome%20Extension-v3-blue?logo=google-chrome)](https://chrome.google.com/webstore) [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Version](https://img.shields.io/badge/Version-1.0.0-orange.svg)](manifest.json)",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aucus/ContextClipCalendar.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aucus/ContextClipCalendar/issues"
+  },
+  "homepage": "https://github.com/aucus/ContextClipCalendar#readme",
+  "dependencies": {
+    "puppeteer": "^24.15.0"
+  }
+}
