@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContextClipCalendar</title>
+    <style>
+        body {
+            width: 420px;
+            min-height: 320px;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1f2937;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Header Styles */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: #1f2937;
+            padding: 1.25rem;
+            margin: 0.75rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .logo-text {
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        
+        .title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.125rem;
+            font-weight: 500;
+        }
+        
+        /* Container Styles */
+        .container {
+            padding: 0;
+            margin: 0.75rem;
+            border: none;
+        }
+        
+        .text-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .text-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .text-label::before {
+            content: '📝';
+            font-size: 1rem;
+        }
+        
+        .selected-text {
+            font-size: 0.875rem;
+            color: #374151;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-left: 4px solid #10b981;
+            max-height: 6rem;
+            overflow-y: auto;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        
+        /* No Text State */
+        .no-text-state {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 0.75rem;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .no-text-icon {
+            width: 4.5rem;
+            height: 4.5rem;
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+            color: #6b7280;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .no-text-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+        }
+        
+        .no-text-desc {
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Clipboard button styles */
+        .clipboard-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transform: translateY(0);
+        }
+        
+        .clipboard-btn:hover {
+            background: linear-gradient(135deg, #0f9976, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .clipboard-btn:active {
+            transform: translateY(0);
+        }
+        
+        .clipboard-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        
+        /* Permission request button styles */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0.5rem auto;
+            transform: translateY(0);
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .primary-btn:hover {
+            background: linear-gradient(135deg, #0f9976, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .primary-btn:active {
+            transform: translateY(0);
+        }
+        
+        .primary-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #374151;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .secondary-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Text source display */
+        .text-source {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 500;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .text-source.clipboard {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            border-color: #10b981;
+        }
+        
+        .text-source.clipboard::before {
+            content: '📋';
+            font-size: 0.875rem;
+        }
+        
+        .text-source.selection {
+            background: rgba(220, 252, 231, 0.8);
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+        
+        .text-source.selection::before {
+            content: '✨';
+            font-size: 0.875rem;
+        }
+        
+        /* Button Styles */
+        .button-container {
+            padding: 0;
+            margin: 0.75rem;
+        }
+        
+        .button {
+            width: 100%;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: white;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+        }
+        
+        .button:last-child {
+            margin-bottom: 0;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .calendar-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .calendar-btn:hover {
+            background: linear-gradient(135deg, #0f9976, #047857);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        /* Loading State */
+        .loading-state {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 0.75rem;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+            border-radius: 50%;
+            height: 2.5rem;
+            width: 2.5rem;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #10b981;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 0.875rem;
+            color: #4b5563;
+            font-weight: 500;
+        }
+        
+        /* Success Message */
+        .success-message {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 0.75rem;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .success-icon {
+            width: 4rem;
+            height: 4rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .success-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #059669;
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-desc {
+            font-size: 0.875rem;
+            color: #4b5563;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .success-details {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .detail-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #374151;
+            font-weight: 600;
+        }
+        
+        .success-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .action-btn.primary-btn {
+            background: #10b981;
+            color: white;
+        }
+        
+        .action-btn.primary-btn:hover {
+            background: #059669;
+        }
+        
+        .action-btn.secondary-btn {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .action-btn.secondary-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        /* Settings */
+        .settings-container {
+            padding: 0;
+            margin: 0.75rem;
+            margin-top: 0;
+        }
+        
+        .settings-btn {
+            width: 100%;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .justify-center {
+            justify-content: center;
+        }
+        
+        .space-x-2 > * + * {
+            margin-left: 0.5rem;
+        }
+        
+        .space-x-1 > * + * {
+            margin-left: 0.25rem;
+        }
+        
+        .w-5 {
+            width: 1.25rem;
+        }
+        
+        .h-5 {
+            height: 1.25rem;
+        }
+        
+        .w-4 {
+            width: 1rem;
+        }
+        
+        .h-4 {
+            height: 1rem;
+        }
+        
+        .w-8 {
+            width: 2rem;
+        }
+        
+        .h-8 {
+            height: 2rem;
+        }
+        
+        .w-6 {
+            width: 1.5rem;
+        }
+        
+        .h-6 {
+            height: 1.5rem;
+        }
+        
+        /* Animation styles */
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Notification message styles */
+        .notification-toast {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .notification-toast.opacity-0 {
+            opacity: 0;
+        }
+        
+        .notification-toast.transform {
+            transform: translateY(8px);
+        }
+        
+        /* Dialog animation */
+        #extract-failed-dialog > div {
+            transition: all 0.15s ease-in-out;
+        }
+        
+        #extract-failed-dialog.opacity-0 > div {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        
+        /* Focus ring styles */
+        .focus\:ring-2:focus {
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5);
+        }
+        
+        .focus\:ring-green-500:focus {
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5);
+        }
+        
+        .focus\:ring-offset-2:focus {
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Custom scrollbar */
+        .selected-text::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .selected-text::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+        
+        .selected-text::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .selected-text::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-text">📅</span>
+            </div>
+            <div>
+                <h1 class="title">ContextClipCalendar</h1>
+                <p class="subtitle">AI 기반 스마트 일정 등록</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selected Text Display -->
+    <div id="selectedTextContainer" class="container hidden">
+        <div class="text-container">
+            <h3 class="text-label">선택된 텍스트</h3>
+            <div id="selectedText" class="selected-text"></div>
+            <div id="textSource" class="text-source"></div>
+        </div>
+    </div>
+
+    <!-- No Text Selected State -->
+    <div id="noTextState" class="no-text-state">
+        <div class="no-text-icon">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+            </svg>
+        </div>
+        <h3 class="no-text-title">📋 클립보드에서 일정 텍스트 가져오기</h3>
+        <p class="no-text-desc">일정으로 등록할 텍스트를 복사한 후<br>아래 버튼을 클릭하여 가져오세요</p>
+        
+        <!-- Clipboard text import button -->
+        <button id="clipboardBtn" class="clipboard-btn">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            <span>📋 클립보드에서 가져오기</span>
+        </button>
+    </div>
+
+    <!-- Action Buttons -->
+    <div id="actionButtons" class="button-container hidden">
+        <!-- Calendar Action -->
+        <button id="calendarBtn" class="button calendar-btn">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span>📅 일정 등록</span>
+        </button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state hidden">
+        <div class="spinner"></div>
+        <p class="loading-text">일정을 처리하고 있습니다...</p>
+    </div>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="success-message hidden">
+        <div class="success-icon">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <h3 class="success-title">성공!</h3>
+        <p class="success-desc" id="successDesc"></p>
+        <div class="success-details" id="successDetails"></div>
+        <div class="success-actions" id="successActions"></div>
+    </div>
+
+    <!-- Settings Link -->
+    <div class="settings-container">
+        <button id="settingsBtn" class="settings-btn">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>⚙️ 설정</span>
+        </button>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

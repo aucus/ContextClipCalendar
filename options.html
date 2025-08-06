@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContextClipCalendar 설정</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .help-text {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            background: #f9fafb;
+            transition: all 0.2s;
+            color: #374151;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #10b981;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0f9976, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.875rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 0.75rem;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .guide {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .guide h3 {
+            color: #0c4a6e;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .guide ol {
+            color: #0369a1;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            padding-left: 1.25rem;
+        }
+
+        .guide li {
+            margin-bottom: 0.25rem;
+        }
+
+        .guide a {
+            color: #0284c7;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .guide a:hover {
+            color: #0369a1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                📅 ContextClipCalendar 설정
+            </h1>
+            <p>AI 기반 스마트 일정 등록을 위한 설정을 관리하세요</p>
+        </div>
+
+        <!-- API 키 설정 -->
+        <div class="card">
+            <h2>
+                🤖 AI API 설정
+            </h2>
+            
+            <div class="form-group">
+                <label for="geminiApiKey">Gemini API 키</label>
+                <div class="help-text">
+                    Google AI Studio에서 발급받은 Gemini API 키를 입력하세요. 
+                    이 키는 일정 정보 추출과 AI 분석에 사용됩니다.
+                </div>
+                <input type="password" id="geminiApiKey" placeholder="AIzaSy...">
+                <div id="geminiStatus" class="status-indicator hidden">
+                    <span id="geminiStatusIcon"></span>
+                    <span id="geminiStatusText"></span>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button id="testGeminiBtn" class="btn btn-secondary">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    API 키 테스트
+                </button>
+                <button id="saveGeminiBtn" class="btn btn-primary">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    저장
+                </button>
+            </div>
+
+            <!-- Gemini API 키 발급 가이드 -->
+            <div class="guide">
+                <h3>
+                    💡 Gemini API 키 발급 방법
+                </h3>
+                <ol>
+                    <li><a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>에 접속하세요</li>
+                    <li>Google 계정으로 로그인하세요</li>
+                    <li>"Get API key" 버튼을 클릭하세요</li>
+                    <li>새 API 키를 생성하거나 기존 키를 선택하세요</li>
+                    <li>생성된 API 키를 위 입력란에 붙여넣으세요</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Google Calendar 인증 -->
+        <div class="card">
+            <h2>
+                🗓️ Google Calendar 연동
+            </h2>
+            
+            <div class="form-group">
+                <label>OAuth 설정 상태</label>
+                <div class="help-text">
+                    Google Calendar API를 사용하려면 먼저 OAuth 클라이언트를 설정해야 합니다.
+                </div>
+                <div id="googleStatus" class="status-indicator status-warning">
+                    <div class="spinner"></div>
+                    <span>OAuth 설정 확인 중...</span>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button id="authenticateGoogleBtn" class="btn btn-primary">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    Google 계정 인증
+                </button>
+                <button id="revokeGoogleBtn" class="btn btn-danger hidden">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636 5.636 18.364"></path>
+                    </svg>
+                    인증 해제
+                </button>
+            </div>
+
+            <!-- OAuth 설정 가이드 -->
+            <div class="guide">
+                <h3>
+                    🔑 Google Calendar OAuth 설정 방법
+                </h3>
+                <ol>
+                    <li><a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>에서 새 프로젝트를 생성하세요</li>
+                    <li>"API 및 서비스" → "라이브러리"에서 Google Calendar API를 활성화하세요</li>
+                    <li>"API 및 서비스" → "사용자 인증 정보"에서 "사용자 인증 정보 만들기" → "OAuth 클라이언트 ID"를 선택하세요</li>
+                    <li>애플리케이션 유형을 "Chrome 확장 프로그램"으로 선택하세요</li>
+                    <li>확장 프로그램 ID를 입력하세요 (chrome://extensions/ 에서 확인 가능)</li>
+                    <li>생성된 클라이언트 ID를 복사하여 manifest.json 파일에 추가하세요:
+                        <pre style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px;">
+"oauth2": {
+  "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
+  "scopes": [
+    "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/calendar.events"
+  ]
+}</pre>
+                    </li>
+                    <li>확장 프로그램을 다시 로드하세요</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- 사용 가이드 -->
+        <div class="card">
+            <h2>
+                📖 사용 가이드
+            </h2>
+            
+            <div class="guide">
+                <h3>
+                    🚀 ContextClipCalendar 사용법
+                </h3>
+                <ol>
+                    <li><strong>텍스트 복사:</strong> 일정으로 등록할 텍스트를 클립보드에 복사하세요</li>
+                    <li><strong>확장 프로그램 실행:</strong> 브라우저 툴바에서 ContextClipCalendar 아이콘을 클릭하세요</li>
+                    <li><strong>자동 로드:</strong> 클립보드의 텍스트가 자동으로 로드됩니다</li>
+                    <li><strong>일정 등록:</strong> "일정 등록" 버튼을 클릭하여 Google Calendar에 등록하세요</li>
+                    <li><strong>컨텍스트 메뉴:</strong> 웹페이지에서 텍스트를 선택하고 우클릭으로도 이용 가능합니다</li>
+                </ol>
+            </div>
+
+            <div class="guide" style="margin-top: 1rem; background: #f0fdf4; border-color: #bbf7d0;">
+                <h3 style="color: #166534;">
+                    ✨ AI가 자동으로 처리하는 내용
+                </h3>
+                <ol style="color: #15803d;">
+                    <li><strong>일정 제목 추출:</strong> 텍스트에서 적절한 일정 제목을 자동 생성</li>
+                    <li><strong>날짜/시간 분석:</strong> "내일 오후 3시", "다음주 월요일" 등 자연어 시간 표현 인식</li>
+                    <li><strong>장소 정보:</strong> 회의실, 주소, 온라인 플랫폼 등 장소 정보 추출</li>
+                    <li><strong>참석자 정보:</strong> 이메일 주소 기반 참석자 목록 생성</li>
+                    <li><strong>내용 요약:</strong> 긴 텍스트를 일정 설명에 적합하게 요약</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script src="options.js"></script>
+</body>
+</html>
