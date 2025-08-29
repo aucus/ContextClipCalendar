@@ -101,6 +101,55 @@
             transform: scale(1.05);
         }
         
+        .legal-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .legal-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .legal-section p {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .legal-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .legal-button {
+            display: inline-block;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .legal-button.privacy {
+            background: #3498db;
+            color: white;
+        }
+        
+        .legal-button.terms {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .legal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
         .footer {
             text-align: center;
             color: white;
@@ -191,6 +240,15 @@
                 <a href="https://chrome.google.com/webstore/detail/contextclipcalendar" class="cta-button">
                     Chrome 웹 스토어에서 설치하기
                 </a>
+            </div>
+            
+            <div class="legal-section">
+                <h2>🔒 개인정보 보호 및 서비스 약관</h2>
+                <p>ContextClipCalendar는 사용자의 개인정보 보호를 최우선으로 생각합니다.</p>
+                <div class="legal-links">
+                    <a href="PRIVACY_POLICY.html" class="legal-button privacy">개인정보처리방침 보기</a>
+                    <a href="TERMS_OF_SERVICE.html" class="legal-button terms">서비스 약관 보기</a>
+                </div>
             </div>
         </div>
         
