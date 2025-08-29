@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ContextClipCalendar - 컨텍스트 클립 캘린더</title>
     <meta name="description" content="ContextClipCalendar - 개인정보처리방침 및 서비스 약관이 포함된 Chrome 확장 프로그램">
+    <meta name="privacy-policy" content="https://aucus.github.io/ContextClipCalendar/privacy-policy.html">
+    <meta name="terms-of-service" content="https://aucus.github.io/ContextClipCalendar/terms-of-service.html">
     <link rel="privacy-policy" href="privacy-policy.html">
     <link rel="terms-of-service" href="terms-of-service.html">
+    <link rel="canonical" href="https://aucus.github.io/ContextClipCalendar/">
     <style>
         * {
             margin: 0;
@@ -59,6 +62,30 @@
         
         .header-link:hover {
             opacity: 1;
+            text-decoration: underline;
+        }
+        
+        .top-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .top-notice p {
+            margin: 0;
+            color: #856404;
+        }
+        
+        .notice-link {
+            color: #0056b3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .notice-link:hover {
             text-decoration: underline;
         }
         
@@ -174,8 +201,14 @@
             background: #e8f4fd;
             border: 1px solid #3498db;
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
             margin-bottom: 30px;
+        }
+        
+        .privacy-notice h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
         }
         
         .privacy-notice p {
@@ -183,13 +216,13 @@
             color: #2c3e50;
         }
         
-        .privacy-notice a {
+        .privacy-link {
             color: #3498db;
             text-decoration: none;
             font-weight: bold;
         }
         
-        .privacy-notice a:hover {
+        .privacy-link:hover {
             text-decoration: underline;
         }
         
@@ -235,11 +268,21 @@
             </div>
         </div>
         
+        <div class="top-notice">
+            <p><strong>개인정보 보호:</strong> ContextClipCalendar는 사용자의 개인정보 보호를 최우선으로 합니다. 
+            <a href="privacy-policy.html" class="notice-link">개인정보처리방침</a>을 확인하시고, 
+            <a href="terms-of-service.html" class="notice-link">서비스 약관</a>을 참고해 주세요.</p>
+        </div>
+        
         <div class="main-content">
             <div class="privacy-notice">
+                <h3>🔒 개인정보 보호 정책</h3>
                 <p><strong>개인정보 보호:</strong> ContextClipCalendar는 사용자의 개인정보 보호를 최우선으로 합니다. 
-                <a href="privacy-policy.html">개인정보처리방침</a>을 확인하시고, 
-                <a href="terms-of-service.html">서비스 약관</a>을 참고해 주세요.</p>
+                <a href="privacy-policy.html" class="privacy-link">개인정보처리방침</a>을 확인하시고, 
+                <a href="terms-of-service.html" class="privacy-link">서비스 약관</a>을 참고해 주세요.</p>
+                <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                    <strong>중요:</strong> 이 서비스는 Google Cloud의 개인정보처리방침을 준수합니다.
+                </p>
             </div>
             
             <h2>🚀 ContextClipCalendar 소개</h2>
