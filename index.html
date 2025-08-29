@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ContextClipCalendar - 컨텍스트 클립 캘린더</title>
+    <meta name="description" content="ContextClipCalendar - 개인정보처리방침 및 서비스 약관이 포함된 Chrome 확장 프로그램">
+    <link rel="privacy-policy" href="privacy-policy.html">
+    <link rel="terms-of-service" href="TERMS_OF_SERVICE.html">
     <style>
         * {
             margin: 0;
@@ -40,6 +43,23 @@
         .header p {
             font-size: 1.2rem;
             opacity: 0.9;
+        }
+        
+        .header-links {
+            margin-top: 20px;
+        }
+        
+        .header-link {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        
+        .header-link:hover {
+            opacity: 1;
+            text-decoration: underline;
         }
         
         .main-content {
@@ -150,6 +170,29 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
+        .privacy-notice {
+            background: #e8f4fd;
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .privacy-notice p {
+            margin: 0;
+            color: #2c3e50;
+        }
+        
+        .privacy-notice a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .privacy-notice a:hover {
+            text-decoration: underline;
+        }
+        
         .footer {
             text-align: center;
             color: white;
@@ -186,9 +229,19 @@
         <div class="header">
             <h1>📅 ContextClipCalendar</h1>
             <p>브라우저에서 컨텍스트를 클립하고 캘린더에 저장하는 스마트한 확장 프로그램</p>
+            <div class="header-links">
+                <a href="privacy-policy.html" class="header-link">개인정보처리방침</a> | 
+                <a href="TERMS_OF_SERVICE.html" class="header-link">서비스 약관</a>
+            </div>
         </div>
         
         <div class="main-content">
+            <div class="privacy-notice">
+                <p><strong>개인정보 보호:</strong> ContextClipCalendar는 사용자의 개인정보 보호를 최우선으로 합니다. 
+                <a href="privacy-policy.html">개인정보처리방침</a>을 확인하시고, 
+                <a href="TERMS_OF_SERVICE.html">서비스 약관</a>을 참고해 주세요.</p>
+            </div>
+            
             <h2>🚀 ContextClipCalendar 소개</h2>
             <p style="font-size: 1.1rem; margin: 20px 0;">
                 ContextClipCalendar는 웹 브라우징 중 발견한 중요한 정보를 즉시 캘린더에 저장할 수 있게 해주는 
