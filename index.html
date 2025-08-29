@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContextClipCalendar - 컨텍스트 클립 캘린더</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .cta-section {
+            text-align: center;
+            background: #667eea;
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: #fff;
+            color: #667eea;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background: #f8f9fa;
+            transform: scale(1.05);
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+        }
+        
+        .footer a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 ContextClipCalendar</h1>
+            <p>브라우저에서 컨텍스트를 클립하고 캘린더에 저장하는 스마트한 확장 프로그램</p>
+        </div>
+        
+        <div class="main-content">
+            <h2>🚀 ContextClipCalendar 소개</h2>
+            <p style="font-size: 1.1rem; margin: 20px 0;">
+                ContextClipCalendar는 웹 브라우징 중 발견한 중요한 정보를 즉시 캘린더에 저장할 수 있게 해주는 
+                혁신적인 Chrome 확장 프로그램입니다. 텍스트를 선택하고 우클릭만 하면 해당 내용이 
+                자동으로 캘린더 이벤트로 변환되어 저장됩니다.
+            </p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🎯 원클릭 클립</h3>
+                    <p>웹 페이지에서 텍스트를 선택하고 우클릭만 하면 즉시 캘린더에 저장됩니다. 
+                    복잡한 설정이나 여러 단계의 과정이 필요하지 않습니다.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📱 스마트 날짜 인식</h3>
+                    <p>선택한 텍스트에서 날짜와 시간 정보를 자동으로 인식하여 
+                    적절한 캘린더 이벤트로 변환합니다.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔗 원본 링크 보존</h3>
+                    <p>클립한 정보의 원본 웹페이지 링크를 자동으로 저장하여 
+                    나중에 참조할 수 있습니다.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>⚡ 빠른 동기화</h3>
+                    <p>Google Calendar와 즉시 동기화되어 모든 기기에서 
+                    저장된 이벤트를 확인할 수 있습니다.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🎨 직관적인 인터페이스</h3>
+                    <p>사용자 친화적인 인터페이스로 누구나 쉽게 사용할 수 있으며, 
+                    개인화된 설정을 통해 더욱 편리하게 활용할 수 있습니다.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔒 안전한 데이터 처리</h3>
+                    <p>개인정보 보호를 최우선으로 하며, 사용자의 데이터는 
+                    안전하게 처리됩니다.</p>
+                </div>
+            </div>
+            
+            <div class="cta-section">
+                <h2>지금 바로 시작하세요!</h2>
+                <p>ContextClipCalendar로 더욱 효율적인 웹 브라우징 경험을 만들어보세요.</p>
+                <a href="https://chrome.google.com/webstore/detail/contextclipcalendar" class="cta-button">
+                    Chrome 웹 스토어에서 설치하기
+                </a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>
+                <a href="PRIVACY_POLICY.html">개인정보처리방침</a> | 
+                <a href="TERMS_OF_SERVICE.html">서비스 약관</a> | 
+                <a href="https://github.com/aucus/ContextClipCalendar">GitHub</a>
+            </p>
+            <p>&copy; 2024 ContextClipCalendar. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
