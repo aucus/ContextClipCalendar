@@ -1355,8 +1355,8 @@ async function authenticateGoogle() {
             chrome.identity.getAuthToken({ 
                 interactive: true,
                 scopes: [
-                    'https://www.googleapis.com/auth/calendar',
-                    'https://www.googleapis.com/auth/calendar.events'
+                    'https://www.googleapis.com/auth/calendar.events',
+                    'https://www.googleapis.com/auth/calendar.readonly'
                 ]
             }, (token) => {
                 if (chrome.runtime.lastError) {

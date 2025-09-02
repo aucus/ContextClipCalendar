@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ContextClipCalendar",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "클립보드의 텍스트를 Google Calendar에 자동 등록하는 AI 기반 생산성 도구",
   "permissions": [
     "activeTab",
@@ -14,13 +14,6 @@
     "https://www.googleapis.com/*",
     "https://generativelanguage.googleapis.com/*"
   ],
-  "oauth2": {
-    "client_id": "721620613902-3ooqov0kflq3ih8ggakvjrv9lp81mgm5.apps.googleusercontent.com",
-    "scopes": [
-      "https://www.googleapis.com/auth/calendar",
-      "https://www.googleapis.com/auth/calendar.events"
-    ]
-  },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'"
   },
