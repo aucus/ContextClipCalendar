@@ -1029,11 +1029,51 @@ async function handleCalendarAction(text, tab) {
         // Check and refresh Google Calendar access token
         const { googleAccessToken, googleRefreshToken } = await chrome.storage.local.get(['googleAccessToken', 'googleRefreshToken']);
         if (!googleAccessToken) {
-            return { success: false, error: 'Google Calendar 인증이 필요합니다. 설정에서 인증해주세요.' };
+            // Try to get token from Chrome Web Store OAuth
+            try {
+                const token = await new Promise((resolve, reject) => {
+                    chrome.identity.getAuthToken({ 
+                        interactive: true,
+                        scopes: [
+                            'https://www.googleapis.com/auth/calendar.events',
+                            'https://www.googleapis.com/auth/calendar.readonly'
+                        ]
+                    }, (token) => {
+                        if (chrome.runtime.lastError) {
+                            reject(new Error(chrome.runtime.lastError.message));
+                        } else if (token) {
+                            resolve(token);
+                        } else {
+                            reject(new Error('인증이 취소되었습니다.'));
+                        }
+                    });
+                });
+                
+                // Save the new token
+                await chrome.storage.local.set({
+                    googleAccessToken: token
+                });
+                
+                console.log('Chrome Web Store OAuth를 통해 토큰 획득 완료');
+                
+            } catch (oauthError) {
+                console.error('Chrome Web Store OAuth 오류:', oauthError);
+                return { 
+                    success: false, 
+                    error: 'Chrome Web Store 등록이 필요합니다. 확장 프로그램을 Chrome Web Store에 등록한 후 다시 시도해주세요.',
+                    details: 'Chrome Web Store에 등록되면 OAuth가 자동으로 설정됩니다.'
+                };
+            }
+        }
+        
+        // Get the token again (either existing or newly acquired)
+        const { googleAccessToken: currentToken } = await chrome.storage.local.get(['googleAccessToken']);
+        if (!currentToken) {
+            return { success: false, error: 'Google Calendar 인증이 필요합니다. Chrome Web Store에서 OAuth를 설정해주세요.' };
         }
         
         // Validate and refresh token
-        const validToken = await validateAndRefreshToken(googleAccessToken, googleRefreshToken);
+        const validToken = await validateAndRefreshToken(currentToken, googleRefreshToken);
         if (!validToken) {
             return { success: false, error: 'Google Calendar 인증이 만료되었습니다. 설정에서 다시 인증해주세요.' };
         }

@@ -201,12 +201,24 @@ async function checkGoogleAuthStatus() {
     try {
         console.log('Checking Google auth status...');
         
-        // Show Chrome Web Store OAuth status
-        showGoogleStatus('success', 'Chrome Web Store에서 자동으로 OAuth를 처리합니다');
+        // Check if we have a valid access token
+        const { googleAccessToken } = await chrome.storage.local.get(['googleAccessToken']);
         
-        // Hide OAuth buttons since Chrome Web Store handles this automatically
-        if (authenticateGoogleBtn) authenticateGoogleBtn.classList.add('hidden');
-        if (revokeGoogleBtn) revokeGoogleBtn.classList.add('hidden');
+        if (googleAccessToken) {
+            // We have a token, show success status
+            showGoogleStatus('success', 'Google Calendar 연동이 활성화되었습니다');
+            
+            // Hide OAuth buttons since we're already authenticated
+            if (authenticateGoogleBtn) authenticateGoogleBtn.classList.add('hidden');
+            if (revokeGoogleBtn) revokeGoogleBtn.classList.add('hidden');
+        } else {
+            // No token, show Chrome Web Store OAuth status
+            showGoogleStatus('info', 'Chrome Web Store에서 자동으로 OAuth를 처리합니다');
+            
+            // Hide OAuth buttons since Chrome Web Store handles this automatically
+            if (authenticateGoogleBtn) authenticateGoogleBtn.classList.add('hidden');
+            if (revokeGoogleBtn) revokeGoogleBtn.classList.add('hidden');
+        }
         
     } catch (error) {
         console.error('Google auth status check error:', error);
