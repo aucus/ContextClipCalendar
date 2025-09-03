@@ -1002,6 +1002,9 @@ async function handleMessage(request, sender) {
             case 'revokeGoogleAuth':
                 return await revokeGoogleAuth();
                 
+            case 'checkChromeStoreOAuthStatus':
+                return await checkChromeStoreOAuthStatus();
+                
             default:
                 return { success: false, error: '알 수 없는 액션' };
         }
@@ -1011,25 +1014,56 @@ async function handleMessage(request, sender) {
     }
 }
 
-// Calendar registration handler (improved version)
-async function handleCalendarAction(text, tab) {
+// Handle calendar action with fallback to API key method
+async function handleCalendarAction(text, apiKey) {
     try {
-        console.log('일정 등록 처리 시작:', { textLength: text.length, sourceUrl: tab?.url });
+        console.log('일정 등록 처리 시작:', { textLength: text.length, sourceUrl: undefined });
+        
+        // First try Chrome Web Store OAuth
+        try {
+            const oauthResult = await handleCalendarActionWithOAuth(text, apiKey);
+            if (oauthResult.success) {
+                return oauthResult;
+            }
+            
+            // If OAuth fails with specific error, try API key method
+            if (oauthResult.code === 'CHROME_STORE_OAUTH_PENDING') {
+                console.log('Chrome Web Store OAuth 미완료, API 키 방식으로 시도');
+                return await handleCalendarActionWithAPIKey(text, apiKey);
+            }
+            
+            return oauthResult;
+            
+        } catch (oauthError) {
+            console.log('OAuth 방식 실패, API 키 방식으로 시도:', oauthError.message);
+            return await handleCalendarActionWithAPIKey(text, apiKey);
+        }
+        
+    } catch (error) {
+        console.error('일정 등록 처리 오류:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Handle calendar action with OAuth (existing method)
+async function handleCalendarActionWithOAuth(text, apiKey) {
+    try {
+        console.log('일정 등록 처리 시작 (OAuth 방식):', { textLength: text.length });
         
         // Check settings
         const settings = await getSettings();
         
         // Check Gemini API key
-        const apiKey = settings.geminiApiKey;
+        const llmApiKey = settings.geminiApiKey || apiKey;
         
-        if (!apiKey) {
+        if (!llmApiKey) {
             return { success: false, error: 'Gemini API 키가 설정되지 않았습니다.' };
         }
         
         // Check and refresh Google Calendar access token
         const { googleAccessToken, googleRefreshToken } = await chrome.storage.local.get(['googleAccessToken', 'googleRefreshToken']);
         if (!googleAccessToken) {
-            // Try to get token from Chrome Web Store OAuth
+            // Try to get token from OAuth (works in both developer mode and Chrome Web Store)
             try {
                 const token = await new Promise((resolve, reject) => {
                     chrome.identity.getAuthToken({ 
@@ -1040,6 +1074,7 @@ async function handleCalendarAction(text, tab) {
                         ]
                     }, (token) => {
                         if (chrome.runtime.lastError) {
+                            console.error('Chrome Identity API 오류:', chrome.runtime.lastError);
                             reject(new Error(chrome.runtime.lastError.message));
                         } else if (token) {
                             resolve(token);
@@ -1054,14 +1089,14 @@ async function handleCalendarAction(text, tab) {
                     googleAccessToken: token
                 });
                 
-                console.log('Chrome Web Store OAuth를 통해 토큰 획득 완료');
+                console.log('OAuth를 통해 토큰 획득 완료');
                 
             } catch (oauthError) {
-                console.error('Chrome Web Store OAuth 오류:', oauthError);
+                console.error('OAuth 오류:', oauthError);
                 return { 
                     success: false, 
-                    error: 'Chrome Web Store 등록이 필요합니다. 확장 프로그램을 Chrome Web Store에 등록한 후 다시 시도해주세요.',
-                    details: 'Chrome Web Store에 등록되면 OAuth가 자동으로 설정됩니다.'
+                    error: 'Google Calendar 인증이 필요합니다. OAuth 인증을 진행해주세요.',
+                    details: oauthError.message
                 };
             }
         }
@@ -1082,11 +1117,11 @@ async function handleCalendarAction(text, tab) {
         
         // Extract calendar information using LLM
         try {
-            const calendarData = await extractCalendarData(text, apiKey);
+            const calendarData = await extractCalendarData(text, llmApiKey);
             console.log('LLM 분석 결과:', calendarData);
             
             // Integrate with Google Calendar API
-            const result = await createGoogleCalendarEvent(calendarData, validToken);
+            const result = await createGoogleCalendarEvent(calendarData, currentToken);
             console.log('Google Calendar 등록 결과:', result);
             
             let message = '일정이 성공적으로 등록되었습니다!';
@@ -1120,6 +1155,67 @@ async function handleCalendarAction(text, tab) {
         }
     } catch (error) {
         console.error('일정 등록 처리 오류:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Handle calendar action with API key (new method)
+async function handleCalendarActionWithAPIKey(text, apiKey) {
+    try {
+        console.log('일정 등록 처리 시작 (API 키 방식):', { textLength: text.length });
+        
+        if (!apiKey || apiKey.trim() === '') {
+            return { success: false, error: 'API 키가 비어있습니다.' };
+        }
+        
+        // Create Gemini API instance
+        const llm = createLLMInstance('gemini', apiKey.trim());
+        
+        // Extract calendar information using LLM
+        try {
+            const calendarData = await llm.extractCalendarInfo(text);
+            console.log('LLM 분석 결과 (API 키 방식):', calendarData);
+            
+            // Validate calendar info
+            if (!calendarData || !calendarData.title || calendarData.title === '새로운 일정') {
+                throw new Error('제공된 텍스트에서 일정 정보를 추출할 수 없습니다.');
+            }
+            
+            // Create Google Calendar event
+            const result = await createGoogleCalendarEvent(calendarData, null); // No access token for API key method
+            console.log('Google Calendar 등록 결과 (API 키 방식):', result);
+            
+            let message = '일정이 성공적으로 등록되었습니다!';
+            if (result.isDuplicate) {
+                message = '일정이 등록되었습니다. (동일한 제목의 일정이 이미 존재할 수 있습니다.)';
+            }
+            
+            return { 
+                success: true, 
+                message: message,
+                data: result 
+            };
+        } catch (extractError) {
+            console.error('일정 정보 추출 실패 (API 키 방식):', extractError);
+            
+            // Special response for calendar info extraction failure
+            if (extractError.message.includes('일정 정보를 추출할 수 없습니다')) {
+                return {
+                    success: false,
+                    error: 'extract_failed',
+                    message: '제공된 텍스트에서 일정 정보를 추출할 수 없습니다.',
+                    details: '텍스트에 날짜, 시간, 일정 제목 등의 정보가 포함되어 있는지 확인해주세요.'
+                };
+            }
+            
+            // Handle other errors with general error message
+            return { 
+                success: false, 
+                error: extractError.message 
+            };
+        }
+    } catch (error) {
+        console.error('일정 등록 처리 오류 (API 키 방식):', error);
         return { success: false, error: error.message };
     }
 }
@@ -1382,6 +1478,161 @@ async function testGeminiAPI(apiKey) {
         }
         
         return { success: false, error: errorMessage };
+    }
+}
+
+// Google OAuth authentication function
+async function authenticateGoogle() {
+    try {
+        console.log('Google OAuth 인증 시작');
+        
+        // Use Chrome Identity API for OAuth authentication
+        const token = await new Promise((resolve, reject) => {
+            chrome.identity.getAuthToken({ 
+                interactive: true,
+                scopes: [
+                    'https://www.googleapis.com/auth/calendar.events',
+                    'https://www.googleapis.com/auth/calendar.readonly'
+                ]
+            }, (token) => {
+                if (chrome.runtime.lastError) {
+                    console.error('Chrome Identity API 오류:', chrome.runtime.lastError);
+                    reject(new Error(chrome.runtime.lastError.message));
+                } else if (token) {
+                    resolve(token);
+                } else {
+                    reject(new Error('인증이 취소되었습니다.'));
+                }
+            });
+        });
+        
+        console.log('OAuth 인증 완료');
+        
+        // Save token
+        await chrome.storage.local.set({
+            googleAccessToken: token
+        });
+        
+        return { success: true, message: 'Google 인증이 완료되었습니다.' };
+        
+    } catch (error) {
+        console.error('Google OAuth 인증 오류:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Check Google token status
+async function checkGoogleTokenStatus() {
+    try {
+        const { googleAccessToken } = await chrome.storage.local.get(['googleAccessToken']);
+        
+        if (!googleAccessToken) {
+            return { isValid: false, message: '토큰이 없습니다.' };
+        }
+        
+        // Validate token
+        const validToken = await validateAndRefreshToken(googleAccessToken, null);
+        
+        if (validToken) {
+            return { isValid: true, message: '토큰이 유효합니다.' };
+        } else {
+            return { isValid: false, message: '토큰이 만료되었습니다.' };
+        }
+        
+    } catch (error) {
+        console.error('토큰 상태 확인 오류:', error);
+        return { isValid: false, error: error.message };
+    }
+}
+
+// Revoke Google authentication
+async function revokeGoogleAuth() {
+    try {
+        const { googleAccessToken } = await chrome.storage.local.get(['googleAccessToken']);
+        
+        if (googleAccessToken) {
+            // Revoke token using Chrome Identity API
+            await new Promise((resolve, reject) => {
+                chrome.identity.removeCachedAuthToken({
+                    token: googleAccessToken
+                }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.warn('토큰 캐시 제거 오류:', chrome.runtime.lastError.message);
+                    }
+                    resolve();
+                });
+            });
+
+            // Also revoke from Google
+            try {
+                await fetch(`https://oauth2.googleapis.com/revoke?token=${googleAccessToken}`, {
+                    method: 'POST'
+                });
+            } catch (revokeError) {
+                console.warn('Google 토큰 해제 오류:', revokeError.message);
+            }
+        }
+        
+        // Remove tokens from local storage
+        await chrome.storage.local.remove(['googleAccessToken', 'googleRefreshToken']);
+        
+        return { success: true, message: 'Google 인증이 해제되었습니다.' };
+        
+    } catch (error) {
+        console.error('Google 인증 해제 오류:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Check Chrome Web Store OAuth status
+async function checkChromeStoreOAuthStatus() {
+    try {
+        // Try to get auth token without interactive mode to check status
+        const token = await new Promise((resolve, reject) => {
+            chrome.identity.getAuthToken({ 
+                interactive: false,
+                scopes: [
+                    'https://www.googleapis.com/auth/calendar.events',
+                    'https://www.googleapis.com/auth/calendar.readonly'
+                ]
+            }, (token) => {
+                if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message));
+                } else if (token) {
+                    resolve(token);
+                } else {
+                    reject(new Error('No token available'));
+                }
+            });
+        });
+        
+        return { 
+            success: true, 
+            hasToken: true, 
+            message: 'Chrome Web Store OAuth가 정상적으로 설정되었습니다.' 
+        };
+        
+    } catch (error) {
+        console.log('Chrome Web Store OAuth 상태 확인:', error.message);
+        
+        if (error.message.includes('Invalid OAuth2 Client ID') || 
+            error.message.includes('bad client id')) {
+            return { 
+                success: false, 
+                hasToken: false, 
+                error: 'Google OAuth 검증이 진행 중입니다.',
+                code: 'OAUTH_VERIFICATION_IN_PROGRESS',
+                message: 'Google의 신용안전팀에서 OAuth 검증을 진행하고 있습니다. 검토 완료까지 4-6주가 소요될 수 있습니다.'
+            };
+        }
+        
+        return { 
+            success: false, 
+            hasToken: false, 
+            error: error.message,
+            code: 'OAUTH_CHECK_FAILED',
+            message: 'OAuth 상태 확인에 실패했습니다.'
+        };
     }
 }
 

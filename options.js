@@ -15,6 +15,96 @@ const googleStatus = document.getElementById('googleStatus');
 const authenticateGoogleBtn = document.getElementById('authenticateGoogleBtn');
 const revokeGoogleBtn = document.getElementById('revokeGoogleBtn');
 
+// Authenticate with Google
+async function authenticateGoogle() {
+    try {
+        console.log('Starting Google authentication...');
+        
+        // Disable button and show loading
+        authenticateGoogleBtn.disabled = true;
+        authenticateGoogleBtn.innerHTML = `
+            <div class="spinner"></div>
+            인증 중...
+        `;
+        
+        showGoogleStatus('warning', 'Google 계정 인증을 진행하고 있습니다...');
+        
+        const response = await chrome.runtime.sendMessage({
+            action: 'authenticateGoogle'
+        });
+        
+        console.log('Google authentication response:', response);
+        
+        if (response.success) {
+            showGoogleStatus('success', '인증 완료! Google Calendar 연동이 활성화되었습니다');
+            authenticateGoogleBtn.classList.add('hidden');
+            revokeGoogleBtn.classList.remove('hidden');
+        } else {
+            showGoogleStatus('error', response.error || '인증에 실패했습니다');
+        }
+        
+    } catch (error) {
+        console.error('Google authentication error:', error);
+        showGoogleStatus('error', '인증 중 오류가 발생했습니다');
+    } finally {
+        // Restore button
+        authenticateGoogleBtn.disabled = false;
+        authenticateGoogleBtn.innerHTML = `
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+            Google 계정 인증
+        `;
+    }
+}
+
+// Revoke Google authentication
+async function revokeGoogleAuth() {
+    if (!confirm('Google 인증을 해제하시겠습니까?\n해제 후에는 일정 등록 기능을 사용할 수 없습니다.')) {
+        return;
+    }
+    
+    try {
+        console.log('Revoking Google authentication...');
+        
+        // Disable button and show loading
+        revokeGoogleBtn.disabled = true;
+        revokeGoogleBtn.innerHTML = `
+            <div class="spinner"></div>
+            해제 중...
+        `;
+        
+        showGoogleStatus('warning', '인증을 해제하고 있습니다...');
+        
+        const response = await chrome.runtime.sendMessage({
+            action: 'revokeGoogleAuth'
+        });
+        
+        console.log('Google revoke response:', response);
+        
+        if (response.success) {
+            showGoogleStatus('error', '인증이 해제되었습니다');
+            authenticateGoogleBtn.classList.remove('hidden');
+            revokeGoogleBtn.classList.add('hidden');
+        } else {
+            showGoogleStatus('error', response.error || '인증 해제에 실패했습니다');
+        }
+        
+    } catch (error) {
+        console.error('Google revoke error:', error);
+        showGoogleStatus('error', '인증 해제 중 오류가 발생했습니다');
+    } finally {
+        // Restore button
+        revokeGoogleBtn.disabled = false;
+        revokeGoogleBtn.innerHTML = `
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636 5.636 18.364"></path>
+            </svg>
+            인증 해제
+        `;
+    }
+}
+
 // Initialize options page
 async function initializeOptionsPage() {
     await loadSettings();
@@ -56,7 +146,11 @@ function setupEventListeners() {
     // Save Gemini API button
     saveGeminiBtn.addEventListener('click', saveGeminiSettings);
     
-    // Note: OAuth event listeners removed - Chrome Web Store will handle OAuth automatically
+    // Google authentication button
+    authenticateGoogleBtn.addEventListener('click', authenticateGoogle);
+    
+    // Revoke Google authentication button
+    revokeGoogleBtn.addEventListener('click', revokeGoogleAuth);
     
     // Enter key support for API key input
     geminiApiKeyInput.addEventListener('keypress', (e) => {
@@ -201,28 +295,47 @@ async function checkGoogleAuthStatus() {
     try {
         console.log('Checking Google auth status...');
         
-        // Check if we have a valid access token
+        // First check Chrome Web Store OAuth status
+        const oauthStatus = await chrome.runtime.sendMessage({
+            action: 'checkChromeStoreOAuthStatus'
+        });
+        
+        console.log('Chrome Web Store OAuth status:', oauthStatus);
+        
+        if (oauthStatus.success && oauthStatus.hasToken) {
+            // Chrome Web Store OAuth is working
+            showGoogleStatus('success', oauthStatus.message);
+            if (authenticateGoogleBtn) authenticateGoogleBtn.classList.add('hidden');
+            if (revokeGoogleBtn) revokeGoogleBtn.classList.remove('hidden');
+            return;
+        }
+        
+        // Check if we have a stored access token
         const { googleAccessToken } = await chrome.storage.local.get(['googleAccessToken']);
         
         if (googleAccessToken) {
-            // We have a token, show success status
+            // We have a stored token, show success status
             showGoogleStatus('success', 'Google Calendar 연동이 활성화되었습니다');
             
             // Hide OAuth buttons since we're already authenticated
             if (authenticateGoogleBtn) authenticateGoogleBtn.classList.add('hidden');
-            if (revokeGoogleBtn) revokeGoogleBtn.classList.add('hidden');
+            if (revokeGoogleBtn) revokeGoogleBtn.classList.remove('hidden');
         } else {
-            // No token, show Chrome Web Store OAuth status
-            showGoogleStatus('info', 'Chrome Web Store에서 자동으로 OAuth를 처리합니다');
+            // No token and Chrome Web Store OAuth not ready
+            if (oauthStatus.code === 'CHROME_STORE_OAUTH_PENDING') {
+                showGoogleStatus('warning', oauthStatus.message);
+            } else {
+                showGoogleStatus('info', 'Google Calendar 연동을 위해 OAuth 인증이 필요합니다');
+            }
             
-            // Hide OAuth buttons since Chrome Web Store handles this automatically
-            if (authenticateGoogleBtn) authenticateGoogleBtn.classList.add('hidden');
+            // Show OAuth buttons for manual authentication
+            if (authenticateGoogleBtn) authenticateGoogleBtn.classList.remove('hidden');
             if (revokeGoogleBtn) revokeGoogleBtn.classList.add('hidden');
         }
         
     } catch (error) {
         console.error('Google auth status check error:', error);
-        showGoogleStatus('info', 'Chrome Web Store OAuth 설정 중...');
+        showGoogleStatus('error', 'OAuth 상태 확인 중 오류가 발생했습니다');
     }
 }
 
