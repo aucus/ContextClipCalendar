@@ -661,7 +661,21 @@ class GoogleCalendarAPI {
             if (response.status === 401) {
                 throw new Error(`인증 오류 (401): 토큰이 만료되었거나 유효하지 않습니다. 설정에서 다시 인증해주세요.`);
             } else if (response.status === 403) {
-                throw new Error(`권한 오류 (403): Google Calendar API에 대한 권한이 없습니다.`);
+                // More specific 403 error handling
+                if (errorData.error && errorData.error.message) {
+                    if (errorData.error.message.includes('insufficient authentication scopes')) {
+                        throw new Error(`권한 오류 (403): Google Calendar API 스코프가 부족합니다. 설정에서 다시 인증해주세요.`);
+                    } else if (errorData.error.message.includes('Calendar API has not been used')) {
+                        throw new Error(`권한 오류 (403): Google Calendar API가 활성화되지 않았습니다. Chrome 확장 프로그램용 OAuth 클라이언트 설정이 필요합니다. 설정에서 "Google Calendar 인증"을 다시 시도해주세요.`);
+                    } else if (errorData.error.message.includes('API has not been used')) {
+                        throw new Error(`권한 오류 (403): Google Calendar API가 활성화되지 않았습니다. Google Cloud Console에서 Calendar API를 활성화하고 Chrome 확장 프로그램용 OAuth 클라이언트를 설정해주세요.`);
+                    } else if (errorData.error.message.includes('insufficient authentication scopes')) {
+                        throw new Error(`권한 오류 (403): 인증 스코프가 부족합니다. 설정에서 "Google Calendar 인증"을 다시 시도해주세요.`);
+                    } else if (errorData.error.message.includes('access_denied')) {
+                        throw new Error(`권한 오류 (403): 접근이 거부되었습니다. Google 계정에서 Calendar API 접근을 허용해주세요.`);
+                    }
+                }
+                throw new Error(`권한 오류 (403): Google Calendar API에 대한 권한이 없습니다. Google Cloud Console에서 Calendar API를 활성화하고 OAuth 클라이언트를 설정해주세요.`);
             } else {
                 throw new Error(errorMessage);
             }
@@ -1005,6 +1019,9 @@ async function handleMessage(request, sender) {
             case 'checkChromeStoreOAuthStatus':
                 return await checkChromeStoreOAuthStatus();
                 
+            case 'getOAuthSetupGuide':
+                return await getOAuthSetupGuide();
+                
             default:
                 return { success: false, error: '알 수 없는 액션' };
         }
@@ -1063,15 +1080,11 @@ async function handleCalendarActionWithOAuth(text, apiKey) {
         // Check and refresh Google Calendar access token
         const { googleAccessToken, googleRefreshToken } = await chrome.storage.local.get(['googleAccessToken', 'googleRefreshToken']);
         if (!googleAccessToken) {
-            // Try to get token from OAuth (works in both developer mode and Chrome Web Store)
+            // Try to get token using Chrome Identity API (recommended for Chrome extensions)
             try {
                 const token = await new Promise((resolve, reject) => {
                     chrome.identity.getAuthToken({ 
-                        interactive: true,
-                        scopes: [
-                            'https://www.googleapis.com/auth/calendar.events',
-                            'https://www.googleapis.com/auth/calendar.readonly'
-                        ]
+                        interactive: true
                     }, (token) => {
                         if (chrome.runtime.lastError) {
                             console.error('Chrome Identity API 오류:', chrome.runtime.lastError);
@@ -1089,14 +1102,15 @@ async function handleCalendarActionWithOAuth(text, apiKey) {
                     googleAccessToken: token
                 });
                 
-                console.log('OAuth를 통해 토큰 획득 완료');
+                console.log('Chrome Identity API를 통해 토큰 획득 완료');
                 
             } catch (oauthError) {
-                console.error('OAuth 오류:', oauthError);
+                console.error('Chrome Identity API 오류:', oauthError);
                 return { 
                     success: false, 
-                    error: 'Google Calendar 인증이 필요합니다. OAuth 인증을 진행해주세요.',
-                    details: oauthError.message
+                    error: 'Google Calendar 인증이 필요합니다. 설정 페이지에서 "Google Calendar 인증" 버튼을 클릭하여 인증을 진행해주세요.',
+                    details: oauthError.message,
+                    action: 'authenticate'
                 };
             }
         }
@@ -1104,7 +1118,7 @@ async function handleCalendarActionWithOAuth(text, apiKey) {
         // Get the token again (either existing or newly acquired)
         const { googleAccessToken: currentToken } = await chrome.storage.local.get(['googleAccessToken']);
         if (!currentToken) {
-            return { success: false, error: 'Google Calendar 인증이 필요합니다. Chrome Web Store에서 OAuth를 설정해주세요.' };
+            return { success: false, error: 'Google Calendar 인증이 필요합니다. 설정에서 "Google Calendar 인증"을 다시 시도해주세요.' };
         }
         
         // Validate and refresh token
@@ -1377,8 +1391,25 @@ async function validateAndRefreshToken(accessToken, refreshToken) {
         const testResponse = await fetch('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + accessToken);
         
         if (testResponse.ok) {
-            console.log('토큰이 유효합니다');
-            return accessToken;
+            const tokenInfo = await testResponse.json();
+            console.log('토큰이 유효합니다:', tokenInfo);
+            
+            // Check if token has required scopes
+            const requiredScopes = [
+                'https://www.googleapis.com/auth/calendar.events',
+                'https://www.googleapis.com/auth/calendar.readonly'
+            ];
+            
+            const hasRequiredScopes = requiredScopes.some(scope => 
+                tokenInfo.scope && tokenInfo.scope.includes(scope)
+            );
+            
+            if (!hasRequiredScopes) {
+                console.log('토큰에 필요한 스코프가 없습니다. 토큰 갱신이 필요합니다.');
+                // Fall through to token refresh
+            } else {
+                return accessToken;
+            }
         }
         
         // Try to get a fresh token using Chrome Identity API
@@ -1386,7 +1417,7 @@ async function validateAndRefreshToken(accessToken, refreshToken) {
         try {
             const freshToken = await new Promise((resolve, reject) => {
                 chrome.identity.getAuthToken({ 
-                    interactive: false // Don't show UI for refresh
+                    interactive: true // Show UI to ensure proper scopes
                 }, (token) => {
                     if (chrome.runtime.lastError) {
                         reject(new Error(chrome.runtime.lastError.message));
@@ -1481,42 +1512,161 @@ async function testGeminiAPI(apiKey) {
     }
 }
 
-// Google OAuth authentication function
+// Web OAuth configuration - Use manifest.json oauth2 settings
+const EXTENSION_REDIRECT = `https://${chrome.runtime.id}.chromiumapp.org/`;
+const SCOPES = [
+    'openid',
+    'email', 
+    'profile',
+    'https://www.googleapis.com/auth/calendar.events',
+    'https://www.googleapis.com/auth/calendar.readonly'
+];
+
+// Google OAuth authentication function using Web OAuth Flow
 async function authenticateGoogle() {
     try {
-        console.log('Google OAuth 인증 시작');
-        
-        // Use Chrome Identity API for OAuth authentication
-        const token = await new Promise((resolve, reject) => {
-            chrome.identity.getAuthToken({ 
-                interactive: true,
-                scopes: [
-                    'https://www.googleapis.com/auth/calendar.events',
-                    'https://www.googleapis.com/auth/calendar.readonly'
-                ]
-            }, (token) => {
-                if (chrome.runtime.lastError) {
-                    console.error('Chrome Identity API 오류:', chrome.runtime.lastError);
-                    reject(new Error(chrome.runtime.lastError.message));
-                } else if (token) {
-                    resolve(token);
-                } else {
-                    reject(new Error('인증이 취소되었습니다.'));
-                }
-            });
-        });
-        
-        console.log('OAuth 인증 완료');
-        
-        // Save token
-        await chrome.storage.local.set({
-            googleAccessToken: token
-        });
-        
-        return { success: true, message: 'Google 인증이 완료되었습니다.' };
+        console.log('Google OAuth 인증 시작 (웹 애플리케이션용 클라이언트)');
+        return await authenticateGoogleWebFlow();
         
     } catch (error) {
         console.error('Google OAuth 인증 오류:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Web OAuth Flow function for web application client
+async function authenticateGoogleWebFlow() {
+    try {
+        console.log('Web OAuth Flow 시작');
+        
+        // Get OAuth client ID from manifest
+        const manifest = chrome.runtime.getManifest();
+        const clientId = manifest.oauth2?.client_id;
+        
+        if (!clientId) {
+            throw new Error('OAuth 클라이언트 ID가 manifest.json에 설정되지 않았습니다.');
+        }
+        
+        // Build OAuth URL with proper scopes
+        const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+        authUrl.searchParams.set('client_id', clientId);
+        authUrl.searchParams.set('redirect_uri', EXTENSION_REDIRECT);
+        authUrl.searchParams.set('response_type', 'code'); // Authorization Code Flow
+        authUrl.searchParams.set('scope', SCOPES.join(' '));
+        authUrl.searchParams.set('include_granted_scopes', 'true');
+        authUrl.searchParams.set('prompt', 'consent');
+        authUrl.searchParams.set('access_type', 'offline');
+        
+        console.log('OAuth URL:', authUrl.toString());
+        console.log('요청 스코프:', SCOPES);
+        
+        // Launch web auth flow
+        const redirectUrl = await chrome.identity.launchWebAuthFlow({
+            url: authUrl.toString(),
+            interactive: true
+        });
+        
+        console.log('OAuth redirect URL:', redirectUrl);
+        
+        // Parse authorization code from redirect URL
+        const url = new URL(redirectUrl);
+        const code = url.searchParams.get('code');
+        const error = url.searchParams.get('error');
+        
+        if (error) {
+            throw new Error(`OAuth 오류: ${error}`);
+        }
+        
+        if (!code) {
+            throw new Error('인증 코드를 받지 못했습니다.');
+        }
+        
+        // Exchange authorization code for access token
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                client_id: clientId,
+                code: code,
+                grant_type: 'authorization_code',
+                redirect_uri: EXTENSION_REDIRECT
+            })
+        });
+        
+        if (!tokenResponse.ok) {
+            const errorData = await tokenResponse.json();
+            throw new Error(`토큰 교환 실패: ${tokenResponse.status} - ${errorData.error_description || errorData.error || '알 수 없는 오류'}`);
+        }
+        
+        const tokenData = await tokenResponse.json();
+        const accessToken = tokenData.access_token;
+        const refreshToken = tokenData.refresh_token;
+        
+        if (!accessToken) {
+            throw new Error('액세스 토큰을 받지 못했습니다.');
+        }
+        
+        // Test the token with Calendar API
+        try {
+            const testResponse = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            
+            if (!testResponse.ok) {
+                const errorData = await testResponse.json();
+                console.error('토큰 테스트 실패:', errorData);
+                throw new Error(`토큰 테스트 실패: ${testResponse.status} - ${errorData.error?.message || '알 수 없는 오류'}`);
+            }
+            
+            console.log('토큰 테스트 성공');
+        } catch (testError) {
+            console.error('토큰 테스트 오류:', testError);
+            throw new Error(`토큰 유효성 검사 실패: ${testError.message}`);
+        }
+        
+        // Save tokens
+        await chrome.storage.local.set({
+            googleAccessToken: accessToken,
+            googleRefreshToken: refreshToken
+        });
+        
+        console.log('Web OAuth Flow 인증 성공');
+        return { success: true, message: 'Google 인증이 완료되었습니다.', accessToken: accessToken };
+        
+    } catch (error) {
+        console.error('Web OAuth Flow 인증 오류:', error);
+        
+        // Provide specific error messages for web application client
+        if (error.message.includes('redirect_uri_mismatch')) {
+            return { 
+                success: false, 
+                error: '리디렉션 URI 불일치 오류입니다. Google Cloud Console에서 리디렉션 URI가 올바르게 설정되어 있는지 확인해주세요.',
+                details: '리디렉션 URI: ' + EXTENSION_REDIRECT,
+                solution: 'Google Cloud Console > APIs & Services > Credentials > OAuth 2.0 Client IDs에서 리디렉션 URI를 추가해주세요.'
+            };
+        } else if (error.message.includes('access_denied')) {
+            return { 
+                success: false, 
+                error: '사용자가 인증을 거부했습니다. 다시 시도해주세요.'
+            };
+        } else if (error.message.includes('invalid_client')) {
+            return { 
+                success: false, 
+                error: 'OAuth 클라이언트 ID가 유효하지 않습니다. manifest.json의 클라이언트 ID를 확인해주세요.',
+                solution: 'Google Cloud Console에서 올바른 클라이언트 ID를 확인하고 manifest.json을 업데이트해주세요.'
+            };
+        } else if (error.message.includes('API has not been used')) {
+            return {
+                success: false,
+                error: 'Google Calendar API가 활성화되지 않았습니다.',
+                solution: 'Google Cloud Console > APIs & Services > Library에서 "Google Calendar API"를 검색하고 활성화해주세요.'
+            };
+        }
+        
         return { success: false, error: error.message };
     }
 }
@@ -1584,47 +1734,38 @@ async function revokeGoogleAuth() {
     }
 }
 
-// Check Chrome Web Store OAuth status
+// Check Web OAuth status
 async function checkChromeStoreOAuthStatus() {
     try {
-        // Try to get auth token without interactive mode to check status
-        const token = await new Promise((resolve, reject) => {
-            chrome.identity.getAuthToken({ 
-                interactive: false,
-                scopes: [
-                    'https://www.googleapis.com/auth/calendar.events',
-                    'https://www.googleapis.com/auth/calendar.readonly'
-                ]
-            }, (token) => {
-                if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message));
-                } else if (token) {
-                    resolve(token);
-                } else {
-                    reject(new Error('No token available'));
+        // Check if we have a stored access token
+        const { googleAccessToken } = await chrome.storage.local.get(['googleAccessToken']);
+        
+        if (googleAccessToken) {
+            // Validate token by making a test API call
+            try {
+                const response = await fetch('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + googleAccessToken);
+                if (response.ok) {
+                    return { 
+                        success: true, 
+                        hasToken: true, 
+                        message: '웹 OAuth가 정상적으로 설정되었습니다.' 
+                    };
                 }
-            });
-        });
+            } catch (tokenError) {
+                console.log('토큰 유효성 검사 실패:', tokenError.message);
+            }
+        }
         
         return { 
-            success: true, 
-            hasToken: true, 
-            message: 'Chrome Web Store OAuth가 정상적으로 설정되었습니다.' 
+            success: false, 
+            hasToken: false, 
+            error: '웹 OAuth 인증이 필요합니다.',
+            code: 'WEB_OAUTH_REQUIRED',
+            message: 'Google 계정 인증을 진행해주세요.'
         };
         
     } catch (error) {
-        console.log('Chrome Web Store OAuth 상태 확인:', error.message);
-        
-        if (error.message.includes('Invalid OAuth2 Client ID') || 
-            error.message.includes('bad client id')) {
-            return { 
-                success: false, 
-                hasToken: false, 
-                error: 'Google OAuth 검증이 진행 중입니다.',
-                code: 'OAUTH_VERIFICATION_IN_PROGRESS',
-                message: 'Google의 신용안전팀에서 OAuth 검증을 진행하고 있습니다. 검토 완료까지 4-6주가 소요될 수 있습니다.'
-            };
-        }
+        console.log('웹 OAuth 상태 확인:', error.message);
         
         return { 
             success: false, 
@@ -1632,6 +1773,100 @@ async function checkChromeStoreOAuthStatus() {
             error: error.message,
             code: 'OAUTH_CHECK_FAILED',
             message: 'OAuth 상태 확인에 실패했습니다.'
+        };
+    }
+}
+
+// OAuth Setup Guide function
+async function getOAuthSetupGuide() {
+    try {
+        const manifest = chrome.runtime.getManifest();
+        const clientId = manifest.oauth2?.client_id;
+        const extensionId = chrome.runtime.id;
+        
+        const guide = {
+            success: true,
+            title: "Google Calendar API 설정 가이드",
+            steps: [
+                {
+                    step: 1,
+                    title: "Google Cloud Console 프로젝트 생성",
+                    description: "Google Cloud Console에서 새 프로젝트를 생성하거나 기존 프로젝트를 선택합니다.",
+                    url: "https://console.cloud.google.com/projectcreate"
+                },
+                {
+                    step: 2,
+                    title: "Google Calendar API 활성화",
+                    description: "APIs & Services > Library에서 'Google Calendar API'를 검색하고 활성화합니다.",
+                    url: "https://console.cloud.google.com/apis/library/calendar-json.googleapis.com"
+                },
+                {
+                    step: 3,
+                    title: "OAuth 2.0 클라이언트 ID 생성",
+                    description: "APIs & Services > Credentials에서 'OAuth 2.0 Client IDs'를 생성합니다.",
+                    url: "https://console.cloud.google.com/apis/credentials"
+                },
+                {
+                    step: 4,
+                    title: "애플리케이션 유형 설정",
+                    description: "애플리케이션 유형을 '웹 애플리케이션'으로 선택합니다.",
+                    details: "Chrome 확장 프로그램에서는 반드시 '웹 애플리케이션'을 선택해야 합니다. 'Chrome 앱'은 더 이상 지원되지 않습니다."
+                },
+                {
+                    step: 5,
+                    title: "리디렉션 URI 설정",
+                    description: "승인된 리디렉션 URI에 다음 URL을 추가합니다:",
+                    details: `https://${extensionId}.chromiumapp.org/`,
+                    code: `https://${extensionId}.chromiumapp.org/`
+                },
+                {
+                    step: 6,
+                    title: "클라이언트 ID 업데이트",
+                    description: "생성된 클라이언트 ID를 manifest.json에 업데이트합니다.",
+                    details: "현재 클라이언트 ID: " + (clientId || "설정되지 않음")
+                },
+                {
+                    step: 7,
+                    title: "확장 프로그램 재로드",
+                    description: "Chrome 확장 프로그램을 재로드하고 인증을 다시 시도합니다.",
+                    details: "chrome://extensions/ 페이지에서 확장 프로그램의 새로고침 버튼을 클릭하세요."
+                }
+            ],
+            currentClientId: clientId,
+            extensionId: extensionId,
+            redirectUri: `https://${extensionId}.chromiumapp.org/`,
+            troubleshooting: [
+                {
+                    issue: "400 오류: access_type 'offline' not allowed for response_type token",
+                    solution: "OAuth 클라이언트를 '웹 애플리케이션'으로 설정하고 Authorization Code Flow를 사용하세요. Implicit Flow는 더 이상 권장되지 않습니다."
+                },
+                {
+                    issue: "403 오류: API가 활성화되지 않음",
+                    solution: "Google Cloud Console에서 Google Calendar API가 활성화되어 있는지 확인하세요."
+                },
+                {
+                    issue: "리디렉션 URI 불일치",
+                    solution: "OAuth 클라이언트 설정에서 정확한 리디렉션 URI가 설정되어 있는지 확인하세요."
+                },
+                {
+                    issue: "스코프 부족",
+                    solution: "OAuth 클라이언트에서 필요한 스코프가 모두 포함되어 있는지 확인하세요."
+                },
+                {
+                    issue: "토큰 교환 실패",
+                    solution: "OAuth 클라이언트가 '웹 애플리케이션'으로 설정되어 있고, 클라이언트 시크릿이 올바르게 설정되어 있는지 확인하세요."
+                }
+            ]
+        };
+        
+        return guide;
+        
+    } catch (error) {
+        console.error('OAuth 설정 가이드 생성 오류:', error);
+        return { 
+            success: false, 
+            error: '설정 가이드를 생성할 수 없습니다.',
+            details: error.message 
         };
     }
 }

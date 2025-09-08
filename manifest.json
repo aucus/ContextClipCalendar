@@ -17,6 +17,15 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'"
   },
+  "oauth2": {
+    "client_id": "849555409149-udgbv576nmf0rm2hm4pcavshfqq4kiao.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/calendar.events",
+      "https://www.googleapis.com/auth/calendar.readonly",
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile"
+    ]
+  },
   "action": {
     "default_popup": "popup.html",
     "default_title": "ContextClipCalendar"
