@@ -1417,7 +1417,8 @@ async function validateAndRefreshToken(accessToken, refreshToken) {
         try {
             const freshToken = await new Promise((resolve, reject) => {
                 chrome.identity.getAuthToken({ 
-                    interactive: true // Show UI to ensure proper scopes
+                    interactive: true,
+                    scopes: SCOPES // Show UI to ensure proper scopes
                 }, (token) => {
                     if (chrome.runtime.lastError) {
                         reject(new Error(chrome.runtime.lastError.message));
@@ -1522,11 +1523,11 @@ const SCOPES = [
     'https://www.googleapis.com/auth/calendar.readonly'
 ];
 
-// Google OAuth authentication function using Web OAuth Flow
+// Google OAuth authentication function using Chrome Identity API
 async function authenticateGoogle() {
     try {
-        console.log('Google OAuth 인증 시작 (웹 애플리케이션용 클라이언트)');
-        return await authenticateGoogleWebFlow();
+        console.log('Google OAuth 인증 시작 (Chrome Identity API)');
+        return await authenticateGoogleChromeIdentity();
         
     } catch (error) {
         console.error('Google OAuth 인증 오류:', error);
@@ -1534,7 +1535,96 @@ async function authenticateGoogle() {
     }
 }
 
-// Web OAuth Flow function for web application client
+// Chrome Identity API authentication function
+async function authenticateGoogleChromeIdentity() {
+    try {
+        console.log('Chrome Identity API 인증 시작');
+        
+        // Get OAuth client ID from manifest
+        const manifest = chrome.runtime.getManifest();
+        const clientId = manifest.oauth2?.client_id;
+        
+        if (!clientId) {
+            throw new Error('OAuth 클라이언트 ID가 manifest.json에 설정되지 않았습니다.');
+        }
+        
+        // Use Chrome Identity API to get auth token
+        const token = await new Promise((resolve, reject) => {
+            chrome.identity.getAuthToken({ 
+                interactive: true,
+                scopes: SCOPES
+            }, (token) => {
+                if (chrome.runtime.lastError) {
+                    console.error('Chrome Identity API 오류:', chrome.runtime.lastError);
+                    reject(new Error(chrome.runtime.lastError.message));
+                } else if (token) {
+                    resolve(token);
+                } else {
+                    reject(new Error('인증이 취소되었습니다.'));
+                }
+            });
+        });
+        
+        if (!token) {
+            throw new Error('토큰을 받지 못했습니다.');
+        }
+        
+        // Test the token with Calendar API
+        try {
+            const testResponse = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!testResponse.ok) {
+                const errorData = await testResponse.json();
+                console.error('토큰 테스트 실패:', errorData);
+                throw new Error(`토큰 테스트 실패: ${testResponse.status} - ${errorData.error?.message || '알 수 없는 오류'}`);
+            }
+            
+            console.log('토큰 테스트 성공');
+        } catch (testError) {
+            console.error('토큰 테스트 오류:', testError);
+            throw new Error(`토큰 유효성 검사 실패: ${testError.message}`);
+        }
+        
+        // Save token
+        await chrome.storage.local.set({
+            googleAccessToken: token
+        });
+        
+        console.log('Chrome Identity API 인증 성공');
+        return { success: true, message: 'Google 인증이 완료되었습니다.', accessToken: token };
+        
+    } catch (error) {
+        console.error('Chrome Identity API 인증 오류:', error);
+        
+        // Provide specific error messages
+        if (error.message.includes('access_denied')) {
+            return { 
+                success: false, 
+                error: '사용자가 인증을 거부했습니다. 다시 시도해주세요.'
+            };
+        } else if (error.message.includes('invalid_client')) {
+            return { 
+                success: false, 
+                error: 'OAuth 클라이언트 ID가 유효하지 않습니다. manifest.json의 클라이언트 ID를 확인해주세요.',
+                solution: 'Google Cloud Console에서 올바른 클라이언트 ID를 확인하고 manifest.json을 업데이트해주세요.'
+            };
+        } else if (error.message.includes('API has not been used')) {
+            return {
+                success: false,
+                error: 'Google Calendar API가 활성화되지 않았습니다.',
+                solution: 'Google Cloud Console > APIs & Services > Library에서 "Google Calendar API"를 검색하고 활성화해주세요.'
+            };
+        }
+        
+        return { success: false, error: error.message };
+    }
+}
+
+// Web OAuth Flow function for web application client (deprecated)
 async function authenticateGoogleWebFlow() {
     try {
         console.log('Web OAuth Flow 시작');
@@ -1809,15 +1899,14 @@ async function getOAuthSetupGuide() {
                 {
                     step: 4,
                     title: "애플리케이션 유형 설정",
-                    description: "애플리케이션 유형을 '웹 애플리케이션'으로 선택합니다.",
-                    details: "Chrome 확장 프로그램에서는 반드시 '웹 애플리케이션'을 선택해야 합니다. 'Chrome 앱'은 더 이상 지원되지 않습니다."
+                    description: "애플리케이션 유형을 'Chrome 앱'으로 선택합니다.",
+                    details: "Chrome 확장 프로그램에서는 'Chrome 앱'을 선택해야 합니다. Chrome Identity API를 사용하기 위해서입니다."
                 },
                 {
                     step: 5,
                     title: "리디렉션 URI 설정",
-                    description: "승인된 리디렉션 URI에 다음 URL을 추가합니다:",
-                    details: `https://${extensionId}.chromiumapp.org/`,
-                    code: `https://${extensionId}.chromiumapp.org/`
+                    description: "Chrome 앱의 경우 리디렉션 URI를 설정할 필요가 없습니다.",
+                    details: "Chrome Identity API를 사용하므로 별도의 리디렉션 URI 설정이 필요하지 않습니다."
                 },
                 {
                     step: 6,
@@ -1837,8 +1926,8 @@ async function getOAuthSetupGuide() {
             redirectUri: `https://${extensionId}.chromiumapp.org/`,
             troubleshooting: [
                 {
-                    issue: "400 오류: access_type 'offline' not allowed for response_type token",
-                    solution: "OAuth 클라이언트를 '웹 애플리케이션'으로 설정하고 Authorization Code Flow를 사용하세요. Implicit Flow는 더 이상 권장되지 않습니다."
+                    issue: "400 오류: client_secret is missing",
+                    solution: "Chrome 확장 프로그램에서는 클라이언트 시크릿을 사용할 수 없습니다. OAuth 클라이언트를 'Chrome 앱'으로 설정하고 Chrome Identity API를 사용하세요."
                 },
                 {
                     issue: "403 오류: API가 활성화되지 않음",
