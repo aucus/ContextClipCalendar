@@ -1022,6 +1022,9 @@ async function handleMessage(request, sender) {
             case 'getOAuthSetupGuide':
                 return await getOAuthSetupGuide();
                 
+            case 'validateOAuthClient':
+                return await validateOAuthClient();
+                
             default:
                 return { success: false, error: '알 수 없는 액션' };
         }
@@ -1904,18 +1907,25 @@ async function getOAuthSetupGuide() {
                 },
                 {
                     step: 5,
+                    title: "애플리케이션 ID 설정",
+                    description: "애플리케이션 ID에 확장 프로그램 ID를 입력합니다.",
+                    details: `현재 확장 프로그램 ID: ${extensionId}`,
+                    code: extensionId
+                },
+                {
+                    step: 6,
                     title: "리디렉션 URI 설정",
                     description: "Chrome 앱의 경우 리디렉션 URI를 설정할 필요가 없습니다.",
                     details: "Chrome Identity API를 사용하므로 별도의 리디렉션 URI 설정이 필요하지 않습니다."
                 },
                 {
-                    step: 6,
+                    step: 7,
                     title: "클라이언트 ID 업데이트",
                     description: "생성된 클라이언트 ID를 manifest.json에 업데이트합니다.",
                     details: "현재 클라이언트 ID: " + (clientId || "설정되지 않음")
                 },
                 {
-                    step: 7,
+                    step: 8,
                     title: "확장 프로그램 재로드",
                     description: "Chrome 확장 프로그램을 재로드하고 인증을 다시 시도합니다.",
                     details: "chrome://extensions/ 페이지에서 확장 프로그램의 새로고침 버튼을 클릭하세요."
@@ -1925,6 +1935,10 @@ async function getOAuthSetupGuide() {
             extensionId: extensionId,
             redirectUri: `https://${extensionId}.chromiumapp.org/`,
             troubleshooting: [
+                {
+                    issue: "OAuth2 request failed: bad client id",
+                    solution: "Google Cloud Console에서 Chrome 앱용 OAuth 클라이언트를 생성하고, 애플리케이션 ID에 확장 프로그램 ID를 정확히 입력하세요."
+                },
                 {
                     issue: "400 오류: client_secret is missing",
                     solution: "Chrome 확장 프로그램에서는 클라이언트 시크릿을 사용할 수 없습니다. OAuth 클라이언트를 'Chrome 앱'으로 설정하고 Chrome Identity API를 사용하세요."
@@ -1955,6 +1969,89 @@ async function getOAuthSetupGuide() {
         return { 
             success: false, 
             error: '설정 가이드를 생성할 수 없습니다.',
+            details: error.message 
+        };
+    }
+}
+
+// OAuth Client Validation function
+async function validateOAuthClient() {
+    try {
+        const manifest = chrome.runtime.getManifest();
+        const clientId = manifest.oauth2?.client_id;
+        const extensionId = chrome.runtime.id;
+        
+        if (!clientId) {
+            return {
+                success: false,
+                error: 'OAuth 클라이언트 ID가 manifest.json에 설정되지 않았습니다.',
+                solution: 'Google Cloud Console에서 Chrome 앱용 OAuth 클라이언트를 생성하고 manifest.json에 추가하세요.'
+            };
+        }
+        
+        // Try to validate the client ID by attempting a simple OAuth request
+        try {
+            const testToken = await new Promise((resolve, reject) => {
+                chrome.identity.getAuthToken({ 
+                    interactive: false, // Don't show UI for validation
+                    scopes: ['https://www.googleapis.com/auth/userinfo.email']
+                }, (token) => {
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                    } else if (token) {
+                        resolve(token);
+                    } else {
+                        reject(new Error('토큰을 받지 못했습니다.'));
+                    }
+                });
+            });
+            
+            return {
+                success: true,
+                message: 'OAuth 클라이언트 ID가 유효합니다.',
+                clientId: clientId,
+                extensionId: extensionId
+            };
+            
+        } catch (validationError) {
+            console.error('OAuth 클라이언트 검증 실패:', validationError);
+            
+            let errorMessage = 'OAuth 클라이언트 ID 검증 실패';
+            let solution = '';
+            
+            if (validationError.message.includes('bad client id')) {
+                errorMessage = 'OAuth 클라이언트 ID가 유효하지 않습니다.';
+                solution = 'Google Cloud Console에서 Chrome 앱용 OAuth 클라이언트를 생성하고 올바른 클라이언트 ID를 manifest.json에 설정하세요.';
+            } else if (validationError.message.includes('invalid_client')) {
+                errorMessage = 'OAuth 클라이언트가 존재하지 않거나 비활성화되었습니다.';
+                solution = 'Google Cloud Console에서 OAuth 클라이언트가 활성화되어 있는지 확인하세요.';
+            } else if (validationError.message.includes('unauthorized_client')) {
+                errorMessage = 'OAuth 클라이언트가 Chrome 확장 프로그램을 지원하지 않습니다.';
+                solution = 'OAuth 클라이언트를 Chrome 앱용으로 설정했는지 확인하세요.';
+            }
+            
+            return {
+                success: false,
+                error: errorMessage,
+                details: validationError.message,
+                solution: solution,
+                clientId: clientId,
+                extensionId: extensionId,
+                setupGuide: {
+                    step1: 'Google Cloud Console > APIs & Services > Credentials',
+                    step2: 'OAuth 2.0 Client IDs > Create Credentials',
+                    step3: 'Application type: Chrome app',
+                    step4: 'Application ID: ' + extensionId,
+                    step5: 'Copy the Client ID to manifest.json'
+                }
+            };
+        }
+        
+    } catch (error) {
+        console.error('OAuth 클라이언트 검증 오류:', error);
+        return { 
+            success: false, 
+            error: 'OAuth 클라이언트 검증 중 오류가 발생했습니다.',
             details: error.message 
         };
     }
