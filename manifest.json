@@ -18,12 +18,10 @@
     "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'"
   },
   "oauth2": {
-    "client_id": "849555409149-udgbv576nmf0rm2hm4pcavshfqq4kiao.apps.googleusercontent.com",
+    "client_id": "721620613902-3ooqov0kflq3ih8ggakvjrv9lp81mgm5.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/calendar.events",
-      "https://www.googleapis.com/auth/calendar.readonly",
-      "https://www.googleapis.com/auth/userinfo.email",
-      "https://www.googleapis.com/auth/userinfo.profile"
+      "https://www.googleapis.com/auth/calendar.readonly"
     ]
   },
   "action": {
