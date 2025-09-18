@@ -459,6 +459,26 @@
         }
         .copy-btn:hover { background: #f8fafc; }
 
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            margin: 1.5rem 0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -509,6 +529,34 @@
                     <a class="link-button" href="#quick-start">🚀 1분 만에 시작하기</a>
                     <a class="secondary-button" href="#step-by-step">자세히 보기</a>
                     <a class="secondary-button" target="_blank" href="https://chromewebstore.google.com/detail/contextclipcalendar/eemoppinnihhinhleefedhbpkbhkabob?hl=ko&utm_source=ext_sidebar">🧩 웹 스토어에서 설치</a>
+                </div>
+            </div>
+
+            <!-- 소개 영상 -->
+            <div class="section" id="demo-video">
+                <h2>🎬 ContextClipCalendar 소개 영상</h2>
+                <p>실제 사용법을 영상으로 확인해보세요! 3분 만에 모든 기능을 체험할 수 있습니다.</p>
+                
+                <div class="video-container">
+                    <iframe 
+                        width="100%" 
+                        height="400" 
+                        src="https://www.youtube.com/embed/jwMakTGBFsE" 
+                        title="ContextClipCalendar 소개 영상" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                
+                <div class="highlight" style="margin-top: 1rem;">
+                    <h4>📺 영상에서 확인할 수 있는 내용</h4>
+                    <ul>
+                        <li><strong>설치부터 설정까지</strong>: 확장 프로그램 설치 및 API 키 설정 과정</li>
+                        <li><strong>실제 사용 예시</strong>: 이메일, 슬랙, 카카오톡 텍스트를 복사해서 일정 등록</li>
+                        <li><strong>AI 분석 결과</strong>: 복잡한 텍스트가 어떻게 깔끔한 일정으로 변환되는지</li>
+                        <li><strong>Google Calendar 연동</strong>: 자동으로 캘린더에 등록되는 과정</li>
+                    </ul>
                 </div>
             </div>
 
@@ -598,6 +646,7 @@
             <div class="toc">
                 <h2>📋 목차</h2>
                 <ol>
+                    <li><a href="#demo-video">🎬 소개 영상</a></li>
                     <li><a href="#install">확장 프로그램 설치</a></li>
                     <li><a href="#pin-and-options">고정 및 옵션 열기</a></li>
                     <li><a href="#prerequisites">사전 준비사항</a></li>
