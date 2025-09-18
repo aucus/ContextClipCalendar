@@ -223,7 +223,7 @@
             background: #fef3c7;
             border: 1px solid #f59e0b;
             border-radius: 0.5rem;
-            padding: 1rem;
+            padding: 1.5rem;
             margin: 1rem 0;
         }
 
@@ -479,6 +479,20 @@
             border: none;
         }
 
+        .video-fallback {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+        }
+
+        .video-fallback p {
+            margin: 0;
+            color: #64748b;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -541,12 +555,17 @@
                     <iframe 
                         width="100%" 
                         height="400" 
-                        src="https://www.youtube.com/embed/jwMakTGBFsE" 
+                        src="https://www.youtube.com/embed/jwMakTGBFsE?rel=0&modestbranding=1&showinfo=0" 
                         title="ContextClipCalendar 소개 영상" 
                         frameborder="0" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                        allowfullscreen>
+                        allowfullscreen
+                        loading="lazy">
                     </iframe>
+                </div>
+                
+                <div class="video-fallback">
+                    <p>영상이 재생되지 않나요? <a href="https://www.youtube.com/watch?v=jwMakTGBFsE" target="_blank" class="link-button">YouTube에서 직접 보기</a></p>
                 </div>
                 
                 <div class="highlight" style="margin-top: 1rem;">
