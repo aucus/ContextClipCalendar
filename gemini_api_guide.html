@@ -413,31 +413,35 @@
             height: 1.25rem;
         }
 
-        /* Screenshots */
         .screenshot-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1rem;
-            margin-top: 0.5rem;
+            margin: 1rem 0;
         }
+
         .shot {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             border-radius: 0.5rem;
-            padding: 0.75rem;
-            box-shadow: 0 4px 16px rgba(2, 6, 23, 0.06);
+            padding: 1rem;
+            text-align: center;
         }
+
         .shot img {
-            width: 100%;
+            max-width: 100%;
             height: auto;
-            border-radius: 0.375rem;
-            display: block;
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        .shot .caption {
-            font-size: 0.85rem;
-            color: #475569;
+
+        .caption {
             margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
         }
+
 
         .copy-line {
             display: flex;
@@ -529,7 +533,7 @@
                     <p>주소창 오른쪽의 퍼즐 아이콘(확장 프로그램)을 클릭한 뒤, ContextClipCalendar 우측의 핀 아이콘을 클릭해 고정하세요.</p>
                     <div class="screenshot-grid">
                         <div class="shot">
-                            <img src="icons/guide/pin-extension.png" alt="퍼즐 아이콘을 눌러 확장 프로그램을 고정하는 화면" />
+                            <img src="icons/guide/pin-extension.svg" alt="퍼즐 아이콘을 눌러 확장 프로그램을 고정하는 화면" />
                             <div class="caption">퍼즐 아이콘 → ContextClipCalendar → 핀 아이콘</div>
                         </div>
                     </div>
@@ -540,7 +544,7 @@
                     <p>툴바의 ContextClipCalendar 아이콘을 우클릭(또는 ⋯ 메뉴) → '옵션'을 클릭해 설정 페이지로 이동합니다.</p>
                     <div class="screenshot-grid">
                         <div class="shot">
-                            <img src="icons/guide/open-options.png" alt="확장 프로그램 아이콘에서 옵션으로 들어가는 화면" />
+                            <img src="icons/guide/open-options.svg" alt="확장 프로그램 아이콘에서 옵션으로 들어가는 화면" />
                             <div class="caption">아이콘 우클릭(또는 메뉴) → 옵션</div>
                         </div>
                     </div>
@@ -551,7 +555,7 @@
                     <p>'Gemini API 키' 입력란에 복사한 키를 붙여넣고 '저장' → '테스트' 버튼으로 연결을 확인하세요.</p>
                     <div class="screenshot-grid">
                         <div class="shot">
-                            <img src="icons/guide/options-api-key.png" alt="옵션 페이지에서 API 키를 입력하는 화면" />
+                            <img src="icons/guide/options-api-key.svg" alt="옵션 페이지에서 API 키를 입력하는 화면" />
                             <div class="caption">옵션 페이지의 API 키 입력 예시</div>
                         </div>
                     </div>
