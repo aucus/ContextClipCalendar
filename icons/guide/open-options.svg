@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+  <defs>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0f9ff"/>
+      <stop offset="1" stop-color="#fafafa"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#g2)"/>
+  <rect x="60" y="90" rx="12" ry="12" width="840" height="360" fill="#ffffff" stroke="#dbe3f2"/>
+  <!-- toolbar row with extension icon -->
+  <rect x="80" y="120" rx="8" ry="8" width="800" height="60" fill="#0b1220"/>
+  <g transform="translate(760 132)">
+    <circle cx="22" cy="22" r="22" fill="#1f67ee"/>
+    <rect x="50" y="8" width="120" height="28" rx="6" fill="#111827" stroke="#1f2937"/>
+    <text x="56" y="28" font-family="-apple-system,Segoe UI,Roboto,Noto Sans,sans-serif" font-size="16" fill="#e5e7eb">옵션…</text>
+  </g>
+
+  <!-- context menu mock -->
+  <g transform="translate(640 200)">
+    <rect x="0" y="0" width="220" height="160" rx="10" fill="#ffffff" stroke="#e5e7eb"/>
+    <rect x="12" y="16" width="196" height="32" rx="6" fill="#f1f5f9"/>
+    <text x="24" y="37" font-family="-apple-system,Segoe UI,Roboto,Noto Sans,sans-serif" font-size="16" fill="#0f172a">옵션</text>
+    <rect x="12" y="64" width="196" height="32" rx="6" fill="#ffffff"/>
+    <text x="24" y="85" font-family="-apple-system,Segoe UI,Roboto,Noto Sans,sans-serif" font-size="16" fill="#334155">확장 프로그램 관리</text>
+    <rect x="12" y="112" width="196" height="32" rx="6" fill="#ffffff"/>
+    <text x="24" y="133" font-family="-apple-system,Segoe UI,Roboto,Noto Sans,sans-serif" font-size="16" fill="#334155">툴바에서 숨기기</text>
+  </g>
+
+  <text x="60" y="470" font-family="-apple-system,Segoe UI,Roboto,Noto Sans,sans-serif" font-size="22" fill="#334155">아이콘 우클릭(또는 ⋯ 메뉴) → ‘옵션’ 클릭</text>
+</svg>

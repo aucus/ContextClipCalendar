@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Gemini API Key 발급 완벽 가이드 - ContextClipCalendar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #0f172a;
+            background: #f6f7fb;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.07);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: #0f172a;
+            padding: 2.25rem 2rem 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.75rem;
+        }
+
+        .header p {
+            font-size: 1.05rem;
+            color: #475569;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        /* Hero (Intro) */
+        .hero {
+            background: #0b1220;
+            color: #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .hero h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            color: #f8fafc;
+        }
+        .hero p {
+            color: #c7d2fe;
+        }
+        .hero-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+            margin: 0.75rem 0 1rem 0;
+        }
+        .hero-list li {
+            list-style: none;
+            background: rgba(37, 99, 235, 0.12);
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            color: #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+        }
+        .cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .toc {
+            background: #fbfdff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .toc h2 {
+            color: #1e293b;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toc ol {
+            list-style: none;
+            counter-reset: item;
+        }
+
+        .toc li {
+            counter-increment: item;
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .toc li::before {
+            content: counter(item);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #10b981;
+            color: white;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .toc a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .toc a:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section h2 {
+            color: #1e293b;
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.75rem;
+        }
+
+        .section h3 {
+            color: #374151;
+            font-size: 1.25rem;
+            margin: 1.5rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step {
+            background: #f9fbff;
+            border-left: 4px solid #10b981;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .step-number {
+            background: #10b981;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        .step h4 {
+            display: inline;
+            color: #1e293b;
+            font-size: 1.1rem;
+        }
+
+        .step p {
+            margin: 0.75rem 0;
+            color: #4b5563;
+        }
+
+        .step ul, .step ol {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .step li {
+            margin-bottom: 0.5rem;
+            color: #4b5563;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .highlight h4 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .highlight p {
+            color: #92400e;
+            margin: 0;
+        }
+
+        .warning {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .warning h4 {
+            color: #991b1b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .warning p {
+            color: #991b1b;
+            margin: 0;
+        }
+
+        .success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .success h4 {
+            color: #065f46;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success p {
+            color: #065f46;
+            margin: 0;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        .link-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1f67ee;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem 0;
+        }
+
+        .link-button:hover {
+            background: #184fba;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(31, 103, 238, 0.25);
+        }
+
+        .secondary-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #0f172a;
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+        .secondary-button:hover { background: #111827; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .troubleshooting {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .troubleshooting h3 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .problem {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .problem h4 {
+            color: #dc2626;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .solution {
+            color: #374151;
+            margin: 0.5rem 0;
+        }
+
+        .solution ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .solution li {
+            margin-bottom: 0.25rem;
+        }
+
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .shot {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .shot img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .caption {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+
+        .copy-line {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .copy-btn {
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #0f172a;
+            padding: 0.4rem 0.6rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .copy-btn:hover { background: #f8fafc; }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            margin: 1.5rem 0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-fallback {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+        }
+
+        .video-fallback p {
+            margin: 0;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Google Gemini API Key 가이드</h1>
+            <p>3단계로 끝! 클릭 몇 번이면 바로 사용 시작</p>
+        </div>
+
+        <div class="content">
+            <!-- Intro / Hero -->
+            <div class="hero" id="intro">
+                <h2>일정 등록, 이제는 딸깍으로 끝!</h2>
+                <p>
+                    AI 채팅? 프롬프트 입력? 시간 아깝죠. 모임/약속/회의 폭탄💣에 구글 캘린더 쓰는 분이라면,
+                    텍스트를 드래그하고 <strong>Ctrl+C</strong>(또는 <strong>Cmd+C</strong>)한 다음, 딸깍 한번이면 끝!
+                    복잡한 내용도 필요한 부분만 쏙쏙 정리해 Google 캘린더에 척척 등록해주는 <strong>일정 딸깍 서비스</strong>입니다.
+                </p>
+                <ul class="hero-list">
+                    <li>📧 웹 메일, 💬 Slack, 🟨 카카오톡 등 어디서든 텍스트 복사 → 딸깍</li>
+                    <li>🧠 AI가 핵심만 분석해 제목/시간/장소를 자동 정리</li>
+                    <li>📅 Google Calendar에 바로 등록!!</li>
+                </ul>
+                <div class="cta-row">
+                    <a class="link-button" href="#quick-start">🚀 1분 만에 시작하기</a>
+                    <a class="secondary-button" href="#step-by-step">자세히 보기</a>
+                    <a class="secondary-button" target="_blank" href="https://chromewebstore.google.com/detail/contextclipcalendar/eemoppinnihhinhleefedhbpkbhkabob?hl=ko&utm_source=ext_sidebar">🧩 웹 스토어에서 설치</a>
+                </div>
+            </div>
+
+            <!-- 소개 영상 -->
+            <div class="section" id="demo-video">
+                <h2>🎬 ContextClipCalendar 소개 영상</h2>
+                <p>실제 사용법을 영상으로 확인해보세요! 3분 만에 모든 기능을 체험할 수 있습니다.</p>
+                
+                <div class="video-container">
+                    <iframe 
+                        width="100%" 
+                        height="400" 
+                        src="https://www.youtube.com/embed/jwMakTGBFsE?rel=0&modestbranding=1&showinfo=0" 
+                        title="ContextClipCalendar 소개 영상" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen
+                        loading="lazy">
+                    </iframe>
+                </div>
+                
+                <div class="video-fallback">
+                    <p>영상이 재생되지 않나요? <a href="https://www.youtube.com/watch?v=jwMakTGBFsE" target="_blank" class="link-button">YouTube에서 직접 보기</a></p>
+                </div>
+                
+                <div class="highlight" style="margin-top: 1rem;">
+                    <h4>📺 영상에서 확인할 수 있는 내용</h4>
+                    <ul>
+                        <li><strong>설치부터 설정까지</strong>: 확장 프로그램 설치 및 API 키 설정 과정</li>
+                        <li><strong>실제 사용 예시</strong>: 이메일, 슬랙, 카카오톡 텍스트를 복사해서 일정 등록</li>
+                        <li><strong>AI 분석 결과</strong>: 복잡한 텍스트가 어떻게 깔끔한 일정으로 변환되는지</li>
+                        <li><strong>Google Calendar 연동</strong>: 자동으로 캘린더에 등록되는 과정</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Install from Chrome Web Store -->
+            <div class="section" id="install">
+                <h2>🧩 확장 프로그램 설치</h2>
+                <p>아직 ContextClipCalendar를 설치하지 않았다면 아래 버튼으로 Chrome 웹 스토어에서 추가하세요.</p>
+                <a class="link-button" target="_blank" href="https://chromewebstore.google.com/detail/contextclipcalendar/eemoppinnihhinhleefedhbpkbhkabob?hl=ko&utm_source=ext_sidebar">Chrome 웹 스토어에서 설치</a>
+                <ol style="margin-top:0.75rem">
+                    <li>'Chrome에 추가' 클릭 → '확장 프로그램 추가' 확인</li>
+                    <li>추가 후 주소창 오른쪽 퍼즐 아이콘에서 고정하면 더 편리해요</li>
+                    <li>설치가 끝났다면 아래 '초간단 시작'으로 넘어가세요</li>
+                </ol>
+            </div>
+
+            <!-- Pin & Options with Screenshots -->
+            <div class="section" id="pin-and-options">
+                <h2>📌 고정 및 옵션 열기 (스크린샷)</h2>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h4>확장 프로그램을 툴바에 고정</h4>
+                    <p>주소창 오른쪽의 퍼즐 아이콘(확장 프로그램)을 클릭한 뒤, ContextClipCalendar 우측의 핀 아이콘을 클릭해 고정하세요.</p>
+                    <div class="screenshot-grid">
+                        <div class="shot">
+                            <img src="screenshot-toolbar-pin.png" alt="Chrome 툴바에서 확장 프로그램을 고정하는 화면" />
+                            <div class="caption">퍼즐 아이콘 → ContextClipCalendar → 핀 아이콘 클릭</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h4>확장 프로그램 사용하기</h4>
+                    <p>고정된 ContextClipCalendar 아이콘을 클릭하면 팝업 인터페이스가 나타납니다. 텍스트를 복사한 후 이 팝업에서 일정을 등록할 수 있습니다.</p>
+                    <div class="screenshot-grid">
+                        <div class="shot">
+                            <img src="screenshot-popup-interface.png" alt="ContextClipCalendar 팝업 인터페이스 화면" />
+                            <div class="caption">팝업 인터페이스에서 일정 등록 및 설정 접근</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h4>옵션 열기 및 API 키 설정</h4>
+                    <p>팝업에서 '설정' 버튼을 클릭하거나, 툴바의 ContextClipCalendar 아이콘을 우클릭 → '옵션'을 클릭해 설정 페이지로 이동합니다.</p>
+                    <div class="screenshot-grid">
+                        <div class="shot">
+                            <img src="screenshot-options.png" alt="ContextClipCalendar 옵션 설정 페이지" />
+                            <div class="caption">옵션 페이지에서 Gemini API 키 입력 및 Google Calendar 연동 설정</div>
+                        </div>
+                    </div>
+                    <div class="highlight">
+                        <h4>💡 설정 완료 체크리스트</h4>
+                        <ul>
+                            <li>✅ <strong>Gemini API 키 입력</strong>: Google AI Studio에서 발급받은 API 키를 입력하고 '저장' 클릭</li>
+                            <li>✅ <strong>API 키 테스트</strong>: 'API 키 테스트' 버튼으로 연결 상태 확인</li>
+                            <li>✅ <strong>Google Calendar 연동</strong>: OAuth 인증을 통해 Google Calendar와 연동</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Start -->
+            <div class="section" id="quick-start">
+                <h2>⚡ 초간단 시작 (3단계)</h2>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h4>Google AI Studio 열기</h4>
+                    <p>아래 버튼을 클릭해서 API 키 생성 페이지로 바로 이동하세요.</p>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="link-button">🌐 API 키 페이지 열기</a>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h4>API 키 만들기 → 복사</h4>
+                    <ol>
+                        <li>'Create API key' 또는 'API 키 만들기' 버튼 클릭</li>
+                        <li>키가 생성되면 전체 선택 후 복사 (Ctrl/Cmd + C)</li>
+                    </ol>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h4>확장 프로그램 옵션에 붙여넣기</h4>
+                    <p class="copy-line">
+                        아래를 열어 옵션으로 이동하세요:
+                        <button class="copy-btn" data-copy="chrome://extensions/">주소 복사</button>
+                    </p>
+                    <div class="code-block"><code>chrome://extensions/</code></div>
+                    <ol>
+                        <li>ContextClipCalendar → '세부정보' 클릭</li>
+                        <li>'확장 프로그램 옵션' 열기</li>
+                        <li>'Gemini API 키' 입력 후 저장 → 테스트</li>
+                    </ol>
+                </div>
+            </div>
+            <!-- 목차 -->
+            <div class="toc">
+                <h2>📋 목차</h2>
+                <ol>
+                    <li><a href="#demo-video">🎬 소개 영상</a></li>
+                    <li><a href="#install">확장 프로그램 설치</a></li>
+                    <li><a href="#pin-and-options">고정 및 옵션 열기</a></li>
+                    <li><a href="#prerequisites">사전 준비사항</a></li>
+                    <li><a href="#step-by-step">단계별 API 키 발급</a></li>
+                    <li><a href="#setup">API 키 설정하기</a></li>
+                    <li><a href="#limits">무료 버전 제한사항</a></li>
+                    <li><a href="#troubleshooting">문제 해결</a></li>
+                    <li><a href="#security">보안 주의사항</a></li>
+                    <li><a href="#tips">추가 팁</a></li>
+                </ol>
+            </div>
+
+            <!-- 사전 준비사항 -->
+            <div class="section" id="prerequisites">
+                <h2>🎯 사전 준비사항</h2>
+                
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h4>필요한 것들</h4>
+                    <ul>
+                        <li>✅ <strong>Google 계정</strong> (Gmail 계정이면 됩니다)</li>
+                        <li>✅ <strong>인터넷 연결</strong></li>
+                        <li>✅ <strong>Chrome 브라우저</strong> (최신 버전 권장)</li>
+                        <li>✅ <strong>5-10분의 시간</strong></li>
+                    </ul>
+                </div>
+
+                <div class="highlight">
+                    <h4>💡 API 키란?</h4>
+                    <p>API 키는 Google의 AI 서비스(Gemini)를 사용할 수 있는 <strong>디지털 열쇠</strong>입니다. ContextClipCalendar가 AI를 통해 텍스트를 분석하고 일정을 추출할 때 필요한 인증 정보입니다.</p>
+                </div>
+            </div>
+
+            <!-- 단계별 API 키 발급 -->
+            <div class="section" id="step-by-step">
+                <h2>🚀 단계별 API 키 발급</h2>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h4>Google AI Studio 접속</h4>
+                    <p>Chrome 브라우저를 열고 다음 링크로 이동하세요:</p>
+                    <a href="https://aistudio.google.com/" target="_blank" class="link-button">
+                        🌐 Google AI Studio 접속
+                    </a>
+                    <p>Google 계정으로 로그인하세요.</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h4>API 키 생성</h4>
+                    <ol>
+                        <li>화면에서 <strong>"Get API key"</strong> 버튼을 찾아 클릭하세요</li>
+                        <li><strong>"Create API key"</strong> 또는 <strong>"API 키 만들기"</strong> 버튼을 클릭하세요</li>
+                        <li>프로젝트 선택 또는 생성:
+                            <ul>
+                                <li><strong>기존 프로젝트가 있다면</strong>: 드롭다운에서 선택</li>
+                                <li><strong>프로젝트가 없다면</strong>: "Create in new project" 선택</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h4>API 키 복사 및 저장</h4>
+                    <ol>
+                        <li>생성된 API 키를 클릭하여 전체 선택하세요</li>
+                        <li><code>Ctrl+C</code> (Windows) 또는 <code>Cmd+C</code> (Mac)로 복사하세요</li>
+                        <li>메모장이나 텍스트 파일에 붙여넣기하여 안전하게 저장하세요</li>
+                        <li>나중에 찾기 쉽게 "Gemini API Key"라고 제목을 붙이세요</li>
+                    </ol>
+                </div>
+
+                <div class="warning">
+                    <h4>⚠️ 중요</h4>
+                    <p>API 키는 비밀 정보입니다. 다른 사람과 절대 공유하지 마세요!</p>
+                </div>
+            </div>
+
+            <!-- API 키 설정하기 -->
+            <div class="section" id="setup">
+                <h2>⚙️ API 키 설정하기</h2>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h4>Chrome 확장 프로그램 페이지로 이동</h4>
+                    <p class="copy-line">Chrome 주소창에 다음을 입력하거나 복사해서 붙여넣기하세요.
+                        <button class="copy-btn" data-copy="chrome://extensions/">복사</button>
+                    </p>
+                    <div class="code-block"><code>chrome://extensions/</code></div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h4>ContextClipCalendar 찾기</h4>
+                    <p>설치된 확장 프로그램 목록에서 ContextClipCalendar를 찾으세요</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h4>설정 페이지 열기</h4>
+                    <p>확장 프로그램 옆의 <strong>"세부정보"</strong> 또는 <strong>"Details"</strong> 클릭</p>
+                    <p><strong>"확장 프로그램 옵션"</strong> 또는 <strong>"Extension options"</strong> 클릭</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <h4>API 키 입력</h4>
+                    <ol>
+                        <li><strong>"Gemini API 키"</strong> 입력란에 복사한 API 키를 붙여넣기</li>
+                        <li><strong>"저장"</strong> 버튼 클릭</li>
+                    </ol>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <h4>연결 테스트</h4>
+                    <p><strong>"API 키 테스트"</strong> 버튼을 클릭하여 정상 작동 확인</p>
+                    <div class="success">
+                        <h4>✅ 성공!</h4>
+                        <p>성공 메시지가 나타나면 설정이 완료되었습니다!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 무료 버전 제한사항 -->
+            <div class="section" id="limits">
+                <h2>📊 무료 버전 제한사항</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">1,000</div>
+                        <div class="stat-label">일일 요청 한도</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">분당 요청 한도</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">무료</div>
+                        <div class="stat-label">비용</div>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h4>🎯 일반인 사용자에게 충분한 이유</h4>
+                    <p><strong>1,000번의 일일 요청</strong>은 일반적인 개인 사용자에게 매우 충분합니다:</p>
+                    <ul>
+                        <li>하루에 10번의 일정 등록 = 100일 사용 가능</li>
+                        <li>하루에 50번의 일정 등록 = 20일 사용 가능</li>
+                        <li>대부분의 사용자는 하루에 5-20번 정도만 사용</li>
+                        <li>월간으로는 최대 30,000회까지 사용 가능 (일일 1,000회 × 30일)</li>
+                    </ul>
+                </div>
+
+                <div class="success">
+                    <h4>🎉 결론</h4>
+                    <p>무료 버전으로도 <strong>충분히 오랫동안 사용</strong>할 수 있습니다!</p>
+                </div>
+            </div>
+
+            <!-- 문제 해결 -->
+            <div class="section" id="troubleshooting">
+                <h2>🔧 문제 해결</h2>
+
+                <div class="troubleshooting">
+                    <h3>자주 발생하는 문제들</h3>
+
+                    <div class="problem">
+                        <h4>❌ "API 키가 유효하지 않습니다" 오류</h4>
+                        <div class="solution">
+                            <strong>해결 방법:</strong>
+                            <ul>
+                                <li>API 키를 다시 복사해보세요</li>
+                                <li>앞뒤 공백이 없는지 확인하세요</li>
+                                <li>API 키가 완전히 복사되었는지 확인하세요</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="problem">
+                        <h4>❌ "권한이 없습니다" 오류</h4>
+                        <div class="solution">
+                            <strong>해결 방법:</strong>
+                            <ul>
+                                <li>Google 계정으로 제대로 로그인했는지 확인</li>
+                                <li>API 키 생성 시 올바른 프로젝트를 선택했는지 확인</li>
+                                <li>잠시 후 다시 시도해보세요</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="problem">
+                        <h4>❌ "할당량을 초과했습니다" 오류</h4>
+                        <div class="solution">
+                            <strong>해결 방법:</strong>
+                            <ul>
+                                <li>무료 사용 한도를 초과한 경우입니다</li>
+                                <li>24시간 후 다시 시도하거나 유료 플랜을 고려하세요</li>
+                                <li>Google AI Studio에서 사용량을 확인해보세요</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="problem">
+                        <h4>❌ "API 키를 찾을 수 없습니다" 오류</h4>
+                        <div class="solution">
+                            <strong>해결 방법:</strong>
+                            <ul>
+                                <li>Google AI Studio에서 API 키가 정말 생성되었는지 확인</li>
+                                <li>API 키를 다시 복사해서 입력해보세요</li>
+                                <li>브라우저를 새로고침하고 다시 시도해보세요</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h4>🔄 여전히 문제가 있다면?</h4>
+                    <ol>
+                        <li><strong>브라우저 새로고침</strong>: F5 키를 눌러 페이지를 새로고침하세요</li>
+                        <li><strong>확장 프로그램 재시작</strong>: Chrome에서 확장 프로그램을 비활성화 후 다시 활성화하세요</li>
+                        <li><strong>다른 브라우저 시도</strong>: Edge나 Firefox에서도 테스트해보세요</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- 보안 주의사항 -->
+            <div class="section" id="security">
+                <h2>🔒 보안 주의사항</h2>
+
+                <div class="warning">
+                    <h4>⚠️ 중요한 보안 규칙</h4>
+                    <ol>
+                        <li><strong>API 키는 비밀입니다</strong>:
+                            <ul>
+                                <li>다른 사람과 절대 공유하지 마세요</li>
+                                <li>SNS나 공개 채팅방에 올리지 마세요</li>
+                                <li>스크린샷에 API 키가 포함되지 않도록 주의하세요</li>
+                            </ul>
+                        </li>
+                        <li><strong>안전한 저장</strong>:
+                            <ul>
+                                <li>API 키를 이메일로 보내지 마세요</li>
+                                <li>공용 컴퓨터에 저장하지 마세요</li>
+                                <li>정기적으로 API 키를 갱신하세요</li>
+                            </ul>
+                        </li>
+                        <li><strong>의심스러운 활동 발견 시</strong>:
+                            <ul>
+                                <li>즉시 Google AI Studio에서 API 키를 삭제하세요</li>
+                                <li>새로운 API 키를 생성하세요</li>
+                                <li>Google 계정 보안을 점검하세요</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">🔄</span>
+                    <h4>API 키 갱신 방법</h4>
+                    <ol>
+                        <li>Google AI Studio에서 기존 API 키 삭제</li>
+                        <li>새로운 API 키 생성</li>
+                        <li>ContextClipCalendar 설정에서 새 키로 교체</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- 추가 팁 -->
+            <div class="section" id="tips">
+                <h2>💡 추가 팁</h2>
+
+                <div class="step">
+                    <span class="step-number">📊</span>
+                    <h4>API 사용량 확인하기</h4>
+                    <ul>
+                        <li>Google AI Studio에서 언제든지 사용량을 확인할 수 있습니다</li>
+                        <li>무료 한도: 분당 15회, 일일 1,000회 요청 (2024년 기준)</li>
+                        <li>월간 제한: 별도로 없음 (일일 1,000회 × 30일 = 월 30,000회 가능)</li>
+                        <li>유료 플랜: 더 많은 요청 가능</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">📅</span>
+                    <h4>ContextClipCalendar 최적 사용법</h4>
+                    <ol>
+                        <li><strong>명확한 텍스트 복사</strong>: "내일 오후 3시 팀 미팅" 같은 명확한 표현 사용</li>
+                        <li><strong>시간 정보 포함</strong>: "오늘", "내일", "다음주" 등 시간 표현 포함</li>
+                        <li><strong>장소 정보 포함</strong>: 회의실, 주소 등 장소 정보 포함</li>
+                    </ol>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">🆘</span>
+                    <h4>문제가 계속 발생한다면</h4>
+                    <ul>
+                        <li><a href="https://github.com/aucus/ContextClipCalendar/issues" target="_blank">GitHub Issues</a>에 문의하세요</li>
+                        <li>오류 메시지와 함께 스크린샷을 첨부해주세요</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 완료 메시지 -->
+            <div class="section">
+                <div class="success">
+                    <h2>🎉 완료!</h2>
+                    <p>축하합니다! 이제 ContextClipCalendar를 완전히 사용할 수 있습니다.</p>
+                    
+                    <h3>다음 단계</h3>
+                    <ol>
+                        <li>텍스트를 복사하고 확장 프로그램을 실행해보세요</li>
+                        <li>AI가 자동으로 일정을 분석하는 것을 확인하세요</li>
+                        <li>Google Calendar에 일정이 등록되는 것을 확인하세요</li>
+                    </ol>
+                    
+                    <p><strong>즐거운 일정 관리 되세요! 📅✨</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 간단한 복사 기능 (주소/문자열 복사)
+        document.addEventListener('click', function(e) {
+            var t = e.target;
+            if (t && t.classList.contains('copy-btn')) {
+                var text = t.getAttribute('data-copy') || '';
+                if (!text) { return; }
+                navigator.clipboard.writeText(text).then(function() {
+                    var original = t.textContent;
+                    t.textContent = '복사됨!';
+                    setTimeout(function() { t.textContent = original; }, 1200);
+                }).catch(function() {
+                    alert('복사를 지원하지 않는 브라우저입니다. 직접 복사해주세요.');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
