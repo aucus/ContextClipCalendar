@@ -252,6 +252,99 @@
             color: #0369a1;
         }
 
+        /* Radio group styles */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-label:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .radio-label input[type="radio"] {
+            margin: 0;
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .radio-label input[type="radio"]:checked + .radio-text {
+            color: #1e293b;
+        }
+
+        .radio-label:has(input:checked) {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .radio-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .radio-text strong {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .radio-text small {
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+
+        /* Guide tabs */
+        .guide-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .guide-tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            background: white;
+            color: #64748b;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .guide-tab:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .guide-tab.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .guide-content {
+            color: #64748b;
+            font-size: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .guide-content.hidden {
+            display: none;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -304,52 +397,161 @@
             <p>AI 기반 스마트 일정 등록을 위한 설정을 관리하세요</p>
         </div>
 
-        <!-- API 키 설정 -->
+        <!-- AI 모델 선택 -->
         <div class="card">
             <h2>
-                🤖 AI API 설정
+                🤖 AI 모델 선택
             </h2>
             
             <div class="form-group">
+                <label>기본 AI 모델</label>
+                <div class="help-text">
+                    일정 정보 추출에 사용할 AI 모델을 선택하세요.
+                </div>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="selectedLLM" value="gemini" checked>
+                        <span class="radio-text">
+                            <strong>Gemini (Google)</strong>
+                            <small>무료, 빠른 응답</small>
+                        </span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="selectedLLM" value="claude">
+                        <span class="radio-text">
+                            <strong>Claude (Anthropic)</strong>
+                            <small>고품질 분석</small>
+                        </span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="selectedLLM" value="chatgpt">
+                        <span class="radio-text">
+                            <strong>ChatGPT (OpenAI)</strong>
+                            <small>다양한 모델</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- API 키 설정 -->
+        <div class="card">
+            <h2>
+                🔑 API 키 설정
+            </h2>
+            
+            <!-- Gemini API Key -->
+            <div class="form-group" id="geminiApiGroup">
                 <label for="geminiApiKey">Gemini API 키</label>
                 <div class="help-text">
-                    Google AI Studio에서 발급받은 Gemini API 키를 입력하세요. 
-                    이 키는 일정 정보 추출과 AI 분석에 사용됩니다.
+                    Google AI Studio에서 발급받은 Gemini API 키를 입력하세요.
                 </div>
                 <input type="password" id="geminiApiKey" placeholder="AIzaSy...">
                 <div id="geminiStatus" class="status-indicator hidden">
                     <span id="geminiStatusIcon"></span>
                     <span id="geminiStatusText"></span>
                 </div>
+                <div class="btn-group">
+                    <button id="testGeminiBtn" class="btn btn-secondary">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        테스트
+                    </button>
+                </div>
+            </div>
+
+            <!-- Claude API Key -->
+            <div class="form-group hidden" id="claudeApiGroup">
+                <label for="claudeApiKey">Claude API 키</label>
+                <div class="help-text">
+                    Anthropic Console에서 발급받은 Claude API 키를 입력하세요.
+                </div>
+                <input type="password" id="claudeApiKey" placeholder="sk-ant-...">
+                <div id="claudeStatus" class="status-indicator hidden">
+                    <span id="claudeStatusIcon"></span>
+                    <span id="claudeStatusText"></span>
+                </div>
+                <div class="btn-group">
+                    <button id="testClaudeBtn" class="btn btn-secondary">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        테스트
+                    </button>
+                </div>
+            </div>
+
+            <!-- ChatGPT API Key -->
+            <div class="form-group hidden" id="chatgptApiGroup">
+                <label for="chatgptApiKey">ChatGPT API 키</label>
+                <div class="help-text">
+                    OpenAI Platform에서 발급받은 API 키를 입력하세요.
+                </div>
+                <input type="password" id="chatgptApiKey" placeholder="sk-...">
+                <div id="chatgptStatus" class="status-indicator hidden">
+                    <span id="chatgptStatusIcon"></span>
+                    <span id="chatgptStatusText"></span>
+                </div>
+                <div class="btn-group">
+                    <button id="testChatgptBtn" class="btn btn-secondary">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        테스트
+                    </button>
+                </div>
             </div>
 
             <div class="btn-group">
-                <button id="testGeminiBtn" class="btn btn-secondary">
-                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    API 키 테스트
-                </button>
-                <button id="saveGeminiBtn" class="btn btn-primary">
+                <button id="saveApiKeysBtn" class="btn btn-primary">
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
                     </svg>
-                    저장
+                    API 키 저장
                 </button>
             </div>
 
-            <!-- Gemini API 키 발급 가이드 -->
+            <!-- API 키 발급 가이드 -->
             <div class="guide">
                 <h3>
-                    💡 Gemini API 키 발급 방법
+                    💡 API 키 발급 방법
                 </h3>
-                <ol>
-                    <li><a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>에 접속하세요</li>
-                    <li>Google 계정으로 로그인하세요</li>
-                    <li>"Get API key" 버튼을 클릭하세요</li>
-                    <li>새 API 키를 생성하거나 기존 키를 선택하세요</li>
-                    <li>생성된 API 키를 위 입력란에 붙여넣으세요</li>
-                </ol>
+                <div class="guide-tabs">
+                    <button class="guide-tab active" data-tab="gemini">Gemini</button>
+                    <button class="guide-tab" data-tab="claude">Claude</button>
+                    <button class="guide-tab" data-tab="chatgpt">ChatGPT</button>
+                </div>
+                
+                <div class="guide-content" id="geminiGuide">
+                    <ol>
+                        <li><a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>에 접속하세요</li>
+                        <li>Google 계정으로 로그인하세요</li>
+                        <li>"Get API key" 버튼을 클릭하세요</li>
+                        <li>새 API 키를 생성하거나 기존 키를 선택하세요</li>
+                        <li>생성된 API 키를 위 입력란에 붙여넣으세요</li>
+                    </ol>
+                </div>
+                
+                <div class="guide-content hidden" id="claudeGuide">
+                    <ol>
+                        <li><a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a>에 접속하세요</li>
+                        <li>계정을 생성하고 로그인하세요</li>
+                        <li>"API Keys" 섹션으로 이동하세요</li>
+                        <li>"Create Key" 버튼을 클릭하여 새 API 키를 생성하세요</li>
+                        <li>생성된 API 키를 위 입력란에 붙여넣으세요</li>
+                    </ol>
+                </div>
+                
+                <div class="guide-content hidden" id="chatgptGuide">
+                    <ol>
+                        <li><a href="https://platform.openai.com/" target="_blank">OpenAI Platform</a>에 접속하세요</li>
+                        <li>계정을 생성하고 로그인하세요</li>
+                        <li>"API Keys" 섹션으로 이동하세요</li>
+                        <li>"Create new secret key" 버튼을 클릭하세요</li>
+                        <li>생성된 API 키를 위 입력란에 붙여넣으세요</li>
+                    </ol>
+                </div>
             </div>
         </div>
 

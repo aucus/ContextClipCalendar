@@ -378,6 +378,16 @@ function setupEventListeners() {
             chrome.runtime.openOptionsPage();
         });
     }
+    
+    // Listen for side panel data received confirmation
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request.action === 'sidePanelDataReceived') {
+            console.log('Side panel confirmed data received, closing popup');
+            setTimeout(() => {
+                window.close();
+            }, 200);
+        }
+    });
 }
 
 // Handle calendar action
@@ -392,19 +402,23 @@ async function handleCalendarAction() {
         
         showLoading();
         
-        // Send message to background script
+        
+        // Send message to background script for AI analysis
         const response = await chrome.runtime.sendMessage({
-            action: 'createCalendarEvent',
+            action: 'analyzeCalendarText',
             text: currentSelectedText,
             source: currentTextSource
         });
         
-        console.log('Calendar action response:', response);
+        console.log('Calendar analysis response:', response);
         
         if (response.success) {
-            showSuccessMessage('일정이 성공적으로 등록되었습니다!', response.data);
+            // Open side panel with analyzed data
+            await openSidePanelWithData(response.data);
+            hideLoading();
         } else {
-            console.error('Calendar action failed:', response.error);
+            console.error('Calendar analysis failed:', response.error);
+            hideLoading();
             if (response.error === 'extract_failed') {
                 showExtractFailedDialog(response.message || '일정 정보를 추출할 수 없습니다', response.details);
             } else {
@@ -416,6 +430,44 @@ async function handleCalendarAction() {
         console.error('Calendar action error:', error);
         hideLoading();
         showError('일정 처리 중 오류가 발생했습니다');
+    }
+}
+
+// Open side panel with event data
+async function openSidePanelWithData(eventData) {
+    try {
+        console.log('Opening side panel with data:', eventData);
+        
+        // Open side panel
+        await chrome.sidePanel.open({ windowId: (await chrome.windows.getCurrent()).id });
+        
+        // Send data to background script for storage
+        try {
+            const response = await chrome.runtime.sendMessage({
+                action: 'sendToSidePanel',
+                data: eventData
+            });
+            
+            if (response.success) {
+                console.log('Data successfully sent to side panel');
+                
+                // Close popup after successful data transfer
+                setTimeout(() => {
+                    window.close();
+                }, 500); // Small delay to ensure side panel is ready
+                
+            } else {
+                console.error('Failed to send data to side panel:', response.error);
+                showError('사이드 패널에 데이터를 전달하는 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('Error sending data to side panel:', error);
+            showError('사이드 패널에 데이터를 전달하는 중 오류가 발생했습니다.');
+        }
+        
+    } catch (error) {
+        console.error('Error opening side panel:', error);
+        showError('사이드 패널을 여는 중 오류가 발생했습니다.');
     }
 }
 

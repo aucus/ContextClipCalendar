@@ -11,6 +11,33 @@ const geminiStatusIcon = document.getElementById('geminiStatusIcon');
 const geminiStatusText = document.getElementById('geminiStatusText');
 const testGeminiBtn = document.getElementById('testGeminiBtn');
 const saveGeminiBtn = document.getElementById('saveGeminiBtn');
+
+// AI Model Selection
+const selectedLLMRadios = document.querySelectorAll('input[name="selectedLLM"]');
+const geminiApiGroup = document.getElementById('geminiApiGroup');
+const claudeApiGroup = document.getElementById('claudeApiGroup');
+const chatgptApiGroup = document.getElementById('chatgptApiGroup');
+
+// Claude API elements
+const claudeApiKeyInput = document.getElementById('claudeApiKey');
+const claudeStatus = document.getElementById('claudeStatus');
+const claudeStatusIcon = document.getElementById('claudeStatusIcon');
+const claudeStatusText = document.getElementById('claudeStatusText');
+const testClaudeBtn = document.getElementById('testClaudeBtn');
+
+// ChatGPT API elements
+const chatgptApiKeyInput = document.getElementById('chatgptApiKey');
+const chatgptStatus = document.getElementById('chatgptStatus');
+const chatgptStatusIcon = document.getElementById('chatgptStatusIcon');
+const chatgptStatusText = document.getElementById('chatgptStatusText');
+const testChatgptBtn = document.getElementById('testChatgptBtn');
+
+// Save button
+const saveApiKeysBtn = document.getElementById('saveApiKeysBtn');
+
+// Guide tabs
+const guideTabs = document.querySelectorAll('.guide-tab');
+const guideContents = document.querySelectorAll('.guide-content');
 const googleStatus = document.getElementById('googleStatus');
 const authenticateGoogleBtn = document.getElementById('authenticateGoogleBtn');
 const revokeGoogleBtn = document.getElementById('revokeGoogleBtn');
@@ -116,15 +143,35 @@ async function initializeOptionsPage() {
 async function loadSettings() {
     try {
         const settings = await chrome.storage.local.get([
-            'geminiApiKey'
+            'selectedLLM',
+            'geminiApiKey',
+            'claudeApiKey',
+            'chatgptApiKey'
         ]);
         
         console.log('Loaded settings:', settings);
         
-        // Load Gemini API key
+        // Load AI model selection
+        if (settings.selectedLLM) {
+            const selectedRadio = document.querySelector(`input[name="selectedLLM"][value="${settings.selectedLLM}"]`);
+            if (selectedRadio) {
+                selectedRadio.checked = true;
+                updateAPIKeyVisibility(settings.selectedLLM);
+            }
+        }
+        
+        // Load API keys
         if (settings.geminiApiKey) {
             geminiApiKeyInput.value = settings.geminiApiKey;
             showGeminiStatus('success', '저장된 API 키가 있습니다');
+        }
+        if (settings.claudeApiKey) {
+            claudeApiKeyInput.value = settings.claudeApiKey;
+            showClaudeStatus('success', '저장된 API 키가 있습니다');
+        }
+        if (settings.chatgptApiKey) {
+            chatgptApiKeyInput.value = settings.chatgptApiKey;
+            showChatgptStatus('success', '저장된 API 키가 있습니다');
         }
         
     } catch (error) {
@@ -140,11 +187,23 @@ function setupEventListeners() {
         hideGeminiStatus();
     });
     
-    // Test Gemini API button
-    testGeminiBtn.addEventListener('click', testGeminiAPI);
+    // Claude API key input
+    claudeApiKeyInput.addEventListener('input', () => {
+        hideClaudeStatus();
+    });
     
-    // Save Gemini API button
-    saveGeminiBtn.addEventListener('click', saveGeminiSettings);
+    // ChatGPT API key input
+    chatgptApiKeyInput.addEventListener('input', () => {
+        hideChatgptStatus();
+    });
+    
+    // Test API buttons
+    testGeminiBtn.addEventListener('click', testGeminiAPI);
+    testClaudeBtn.addEventListener('click', testClaudeAPI);
+    testChatgptBtn.addEventListener('click', testChatgptAPI);
+    
+    // Save all API keys button
+    saveApiKeysBtn.addEventListener('click', saveAllAPIKeys);
     
     // Google authentication button
     authenticateGoogleBtn.addEventListener('click', authenticateGoogle);
@@ -337,6 +396,177 @@ async function checkGoogleAuthStatus() {
         console.error('Google auth status check error:', error);
         showGoogleStatus('error', 'OAuth 상태 확인 중 오류가 발생했습니다');
     }
+}
+
+// Setup AI model selection
+function setupAIModelSelection() {
+    selectedLLMRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                updateAPIKeyVisibility(e.target.value);
+            }
+        });
+    });
+}
+
+// Update API key visibility based on selected model
+function updateAPIKeyVisibility(selectedModel) {
+    // Hide all API groups
+    geminiApiGroup.classList.add('hidden');
+    claudeApiGroup.classList.add('hidden');
+    chatgptApiGroup.classList.add('hidden');
+    
+    // Show selected API group
+    switch (selectedModel) {
+        case 'gemini':
+            geminiApiGroup.classList.remove('hidden');
+            break;
+        case 'claude':
+            claudeApiGroup.classList.remove('hidden');
+            break;
+        case 'chatgpt':
+            chatgptApiGroup.classList.remove('hidden');
+            break;
+    }
+}
+
+// Setup guide tabs
+function setupGuideTabs() {
+    guideTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+            
+            // Update active tab
+            guideTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Show corresponding content
+            guideContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`${tabName}Guide`).classList.remove('hidden');
+        });
+    });
+}
+
+// Test Claude API
+async function testClaudeAPI() {
+    const apiKey = claudeApiKeyInput.value.trim();
+    
+    if (!apiKey) {
+        showClaudeStatus('error', 'API 키를 입력해주세요');
+        return;
+    }
+    
+    try {
+        showClaudeStatus('warning', 'API 키를 테스트하고 있습니다...');
+        testClaudeBtn.disabled = true;
+        
+        const response = await chrome.runtime.sendMessage({
+            action: 'testClaudeAPI',
+            apiKey: apiKey
+        });
+        
+        if (response.success) {
+            showClaudeStatus('success', 'Claude API 키가 유효합니다!');
+        } else {
+            showClaudeStatus('error', response.error || 'API 키 테스트에 실패했습니다');
+        }
+        
+    } catch (error) {
+        console.error('Claude API test error:', error);
+        showClaudeStatus('error', 'API 키 테스트 중 오류가 발생했습니다');
+    } finally {
+        testClaudeBtn.disabled = false;
+    }
+}
+
+// Test ChatGPT API
+async function testChatgptAPI() {
+    const apiKey = chatgptApiKeyInput.value.trim();
+    
+    if (!apiKey) {
+        showChatgptStatus('error', 'API 키를 입력해주세요');
+        return;
+    }
+    
+    try {
+        showChatgptStatus('warning', 'API 키를 테스트하고 있습니다...');
+        testChatgptBtn.disabled = true;
+        
+        const response = await chrome.runtime.sendMessage({
+            action: 'testChatgptAPI',
+            apiKey: apiKey
+        });
+        
+        if (response.success) {
+            showChatgptStatus('success', 'ChatGPT API 키가 유효합니다!');
+        } else {
+            showChatgptStatus('error', response.error || 'API 키 테스트에 실패했습니다');
+        }
+        
+    } catch (error) {
+        console.error('ChatGPT API test error:', error);
+        showChatgptStatus('error', 'API 키 테스트 중 오류가 발생했습니다');
+    } finally {
+        testChatgptBtn.disabled = false;
+    }
+}
+
+// Save all API keys
+async function saveAllAPIKeys() {
+    try {
+        const selectedLLM = document.querySelector('input[name="selectedLLM"]:checked').value;
+        const geminiApiKey = geminiApiKeyInput.value.trim();
+        const claudeApiKey = claudeApiKeyInput.value.trim();
+        const chatgptApiKey = chatgptApiKeyInput.value.trim();
+        
+        const settings = {
+            selectedLLM,
+            geminiApiKey,
+            claudeApiKey,
+            chatgptApiKey
+        };
+        
+        await chrome.storage.local.set(settings);
+        
+        // Show success message
+        showGeminiStatus('success', '모든 설정이 저장되었습니다!');
+        
+        console.log('Settings saved:', settings);
+        
+    } catch (error) {
+        console.error('Save settings error:', error);
+        showGeminiStatus('error', '설정 저장 중 오류가 발생했습니다');
+    }
+}
+
+// Show Claude status
+function showClaudeStatus(type, message) {
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
+    claudeStatusIcon.textContent = icon;
+    claudeStatusText.textContent = message;
+    claudeStatus.className = `status-indicator ${type}`;
+    claudeStatus.classList.remove('hidden');
+}
+
+// Hide Claude status
+function hideClaudeStatus() {
+    claudeStatus.classList.add('hidden');
+}
+
+// Show ChatGPT status
+function showChatgptStatus(type, message) {
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
+    chatgptStatusIcon.textContent = icon;
+    chatgptStatusText.textContent = message;
+    chatgptStatus.className = `status-indicator ${type}`;
+    chatgptStatus.classList.remove('hidden');
+}
+
+// Hide ChatGPT status
+function hideChatgptStatus() {
+    chatgptStatus.classList.add('hidden');
 }
 
 // Show Google status

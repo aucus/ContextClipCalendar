@@ -104,6 +104,16 @@ class GoogleCalendarAPI {
                 eventData: eventData
             });
 
+            // Check for duplicate events before creating
+            const duplicateCheck = await this.checkForDuplicateEvent(calendarId, eventData);
+            if (duplicateCheck.isDuplicate) {
+                console.log('Duplicate event found, returning existing event:', duplicateCheck.existingEvent);
+                return {
+                    ...duplicateCheck.existingEvent,
+                    isDuplicate: true
+                };
+            }
+
             const result = await this.callAPI(
                 `/calendars/${encodeURIComponent(calendarId)}/events`,
                 {
@@ -118,6 +128,64 @@ class GoogleCalendarAPI {
             console.error('Event creation error (content script):', error);
             throw error;
         }
+    }
+
+    // Check for duplicate events
+    async checkForDuplicateEvent(calendarId, eventData) {
+        try {
+            console.log('Checking for duplicate events...');
+            
+            // Get events from the same time period
+            const startTime = new Date(eventData.start.dateTime);
+            const endTime = new Date(eventData.end.dateTime);
+            
+            // Search for events in the same time range
+            const timeMin = new Date(startTime.getTime() - 30 * 60 * 1000).toISOString(); // 30 minutes before
+            const timeMax = new Date(endTime.getTime() + 30 * 60 * 1000).toISOString(); // 30 minutes after
+            
+            const events = await this.callAPI(
+                `/calendars/${encodeURIComponent(calendarId)}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`
+            );
+            
+            console.log('Found events in time range:', events.items?.length || 0);
+            
+            // Check for exact matches
+            if (events.items && events.items.length > 0) {
+                for (const existingEvent of events.items) {
+                    // Check title match
+                    if (existingEvent.summary === eventData.summary) {
+                        console.log('Duplicate event found by title:', existingEvent.summary);
+                        return {
+                            isDuplicate: true,
+                            existingEvent: existingEvent
+                        };
+                    }
+                    
+                    // Check time overlap
+                    const existingStart = new Date(existingEvent.start.dateTime || existingEvent.start.date);
+                    const existingEnd = new Date(existingEvent.end.dateTime || existingEvent.end.date);
+                    
+                    if (this.isTimeOverlapping(startTime, endTime, existingStart, existingEnd)) {
+                        console.log('Duplicate event found by time overlap:', existingEvent.summary);
+                        return {
+                            isDuplicate: true,
+                            existingEvent: existingEvent
+                        };
+                    }
+                }
+            }
+            
+            return { isDuplicate: false };
+        } catch (error) {
+            console.error('Duplicate check error:', error);
+            // If duplicate check fails, proceed with creation
+            return { isDuplicate: false };
+        }
+    }
+
+    // Check if two time ranges overlap
+    isTimeOverlapping(start1, end1, start2, end2) {
+        return start1 < end2 && start2 < end1;
     }
 
     // Format event data (content script version)
