@@ -2,7 +2,7 @@
 
 [![Chrome Extension](https://img.shields.io/badge/Chrome%20Extension-v3-blue?logo=google-chrome)](https://chrome.google.com/webstore)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.6-orange.svg)](manifest.json)
+[![Version](https://img.shields.io/badge/Version-1.1.0-orange.svg)](manifest.json)
 
 > AI-powered smart calendar registration Chrome extension  
 > AI 기반 스마트 일정 등록 Chrome 확장 프로그램
