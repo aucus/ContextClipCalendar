@@ -221,17 +221,17 @@ document.addEventListener('keydown', (event) => {
                 source: 'keyboard_shortcut'
             }).then(response => {
                 if (response && response.success) {
-                    showNotification('일정이 성공적으로 등록되었습니다!', 'success');
+                    showNotification(chrome.i18n.getMessage('scheduleSuccessfullyRegistered'), 'success');
                     highlightSelectedText();
                 } else {
-                    showNotification(response?.error || '일정 등록 중 오류가 발생했습니다', 'error');
+                    showNotification(response?.error || chrome.i18n.getMessage('errorRegisteringSchedule'), 'error');
                 }
             }).catch(error => {
                 console.error('Keyboard shortcut calendar action error:', error);
-                showNotification('일정 등록 중 오류가 발생했습니다', 'error');
+                showNotification(chrome.i18n.getMessage('errorRegisteringSchedule'), 'error');
             });
         } else {
-            showNotification('텍스트를 먼저 선택해주세요', 'warning');
+            showNotification(chrome.i18n.getMessage('pleaseSelectTextFirst'), 'warning');
         }
     }
 });

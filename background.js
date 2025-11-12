@@ -1,24 +1,57 @@
 // ContextClipCalendar Background Service Worker
 // Integrated AI and Calendar API functionality
 
-// Base LLM API class
+/**
+ * Base class for LLM API implementations
+ * @class BaseLLMAPI
+ */
 class BaseLLMAPI {
+    /**
+     * Create a BaseLLMAPI instance
+     * @param {string} apiKey - API key for the LLM service
+     */
     constructor(apiKey) {
         this.apiKey = apiKey;
     }
 
+    /**
+     * Call the LLM API with a prompt
+     * @param {string} prompt - The prompt text to send to the API
+     * @param {Object} options - Optional parameters (temperature, maxTokens, etc.)
+     * @returns {Promise<string>} The API response text
+     * @throws {Error} Must be implemented by subclasses
+     */
     async callAPI(prompt, options = {}) {
         throw new Error('callAPI method must be implemented.');
     }
 
+    /**
+     * Extract calendar information from text using AI
+     * @param {string} text - The input text to analyze
+     * @returns {Promise<Object>} Extracted calendar data (title, startDate, endDate, etc.)
+     * @throws {Error} Must be implemented by subclasses
+     */
     async extractCalendarInfo(text) {
         throw new Error('extractCalendarInfo method must be implemented.');
     }
 
+    /**
+     * Generate a summary of the text
+     * @param {string} text - The text to summarize
+     * @param {number} maxLength - Maximum length of the summary
+     * @returns {Promise<string>} The generated summary
+     * @throws {Error} Must be implemented by subclasses
+     */
     async generateSummary(text, maxLength = 200) {
         throw new Error('generateSummary method must be implemented.');
     }
 
+    /**
+     * Analyze calendar text for detailed information
+     * @param {string} text - The text to analyze
+     * @returns {Promise<Object>} Detailed analysis results
+     * @throws {Error} Must be implemented by subclasses
+     */
     async analyzeCalendarText(text) {
         throw new Error('analyzeCalendarText method must be implemented.');
     }
@@ -187,7 +220,7 @@ class BaseLLMAPI {
             
             return null;
         } catch (error) {
-            console.error('제목 추출 실패:', error);
+            console.error('Title extraction failed:', error);
             return null;
         }
     }
@@ -213,7 +246,7 @@ class BaseLLMAPI {
             
             return cleaned;
         } catch (error) {
-            console.error('응답 정리 실패:', error);
+            console.error('Response cleaning failed:', error);
             return response;
         }
     }
@@ -242,7 +275,7 @@ class BaseLLMAPI {
             
             return uniqueKeywords.slice(0, 5);
         } catch (error) {
-            console.error('키워드 추출 실패:', error);
+            console.error('Keyword extraction failed:', error);
             return [];
         }
     }
@@ -270,16 +303,16 @@ class BaseLLMAPI {
                 if (email && this.isValidEmail(email) && !validEmails.has(email.toLowerCase())) {
                     validEmails.add(email.toLowerCase());
                     validAttendees.push(email);
-                    console.log('유효한 참석자 이메일 추가:', email);
+                    console.log('Adding valid attendee email:', email);
                 } else if (email) {
-                    console.log('유효하지 않거나 중복된 이메일 제외:', email);
+                    console.log('Excluding invalid or duplicate email:', email);
                 }
             }
             
-            console.log('병합된 유효한 참석자 수:', validAttendees.length);
+            console.log('Merged valid attendees count:', validAttendees.length);
             return validAttendees;
         } catch (error) {
-            console.error('참석자 병합 오류:', error);
+            console.error('Attendee merge error:', error);
             return [];
         }
     }
@@ -314,81 +347,29 @@ class BaseLLMAPI {
     }
 }
 
-// Claude API implementation
-class ClaudeAPI extends BaseLLMAPI {
-    constructor(apiKey) {
-        super(apiKey);
-        this.baseUrl = 'https://api.anthropic.com/v1/messages';
-    }
+/**
+ * Detect the language of input text
+ * @param {string} text - The text to analyze
+ * @returns {string} Language code ('ko' for Korean, 'en' for English)
+ */
+function detectLanguage(text) {
+    const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+    return koreanRegex.test(text) ? 'ko' : 'en';
+}
 
-    async callAPI(prompt, options = {}) {
-        try {
-            console.log('=== Claude API 호출 시작 ===');
-            console.log('API URL:', this.baseUrl);
-            console.log('프롬프트 길이:', prompt.length);
-            console.log('프롬프트 미리보기:', prompt.substring(0, 200) + '...');
-            
-            const requestBody = {
-                model: 'claude-3-5-sonnet-20241022',
-                max_tokens: options.maxTokens || 1000,
-                temperature: options.temperature || 0.7,
-                messages: [{
-                    role: 'user',
-                    content: prompt
-                }]
-            };
-            
-            console.log('요청 본문:', JSON.stringify(requestBody, null, 2));
-            
-            const response = await fetch(this.baseUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': this.apiKey,
-                    'anthropic-version': '2023-06-01'
-                },
-                body: JSON.stringify(requestBody)
-            });
-
-            console.log('HTTP 응답 상태:', response.status, response.statusText);
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('HTTP 오류 응답 본문:', errorText);
-                throw new Error(`API 호출 실패: ${response.status} ${response.statusText}`);
-            }
-
-            const responseText = await response.text();
-            console.log('=== 원본 응답 텍스트 ===');
-            console.log(responseText);
-            console.log('=== 원본 응답 텍스트 끝 ===');
-            
-            const data = JSON.parse(responseText);
-            console.log('=== 파싱된 응답 데이터 ===');
-            console.log(JSON.stringify(data, null, 2));
-            console.log('=== 파싱된 응답 데이터 끝 ===');
-            
-            if (data.content && data.content[0] && data.content[0].text) {
-                const text = data.content[0].text;
-                console.log('=== 추출된 텍스트 ===');
-                console.log(text);
-                console.log('=== 추출된 텍스트 끝 ===');
-                return text;
-            } else {
-                console.error('응답 구조 문제:', data);
-                throw new Error('API 응답 형식이 올바르지 않습니다.');
-            }
-        } catch (error) {
-            console.error('=== Claude API 호출 오류 ===');
-            console.error('오류 타입:', error.constructor.name);
-            console.error('오류 메시지:', error.message);
-            console.error('오류 스택:', error.stack);
-            throw error;
-        }
-    }
-
-    async extractCalendarInfo(text) {
-        const prompt = `
+/**
+ * Generate calendar extraction prompt based on detected language
+ * @param {string} text - The input text to extract calendar info from
+ * @param {string} language - Language code ('ko' or 'en')
+ * @returns {string} Formatted prompt for the AI model
+ */
+function generateCalendarPrompt(text, language = 'en') {
+    const locale = navigator.language || 'en-US';
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const currentDate = new Date();
+    
+    if (language === 'ko') {
+        return `
 다음 텍스트를 분석하여 캘린더에 저장할 일정 정보를 정확하게 추출해주세요.
 
 텍스트: "${text}"
@@ -421,8 +402,8 @@ class ClaudeAPI extends BaseLLMAPI {
    - 이메일 주소나 이름으로 된 참석자 목록
    - "참석자:", "참가자:", "함께:" 등의 키워드 뒤에 오는 사람들
 
-현재 시간: ${new Date().toISOString()}
-현재 날짜: ${new Date().toLocaleDateString('ko-KR')}
+현재 시간: ${currentDate.toISOString()}
+현재 날짜: ${currentDate.toLocaleDateString(locale)}
 
 중요: 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트나 설명은 포함하지 마세요.
 
@@ -439,20 +420,166 @@ class ClaudeAPI extends BaseLLMAPI {
 주의사항:
 - 반드시 유효한 JSON 형식으로만 응답하세요
 - 날짜/시간 형식은 ISO 8601 표준을 따르세요 (YYYY-MM-DDTHH:MM:SS)
-- 시간대는 한국 시간(Asia/Seoul)을 기준으로 하세요
+- 시간대는 ${timeZone}을 기준으로 하세요
 - 제목은 50자 이내로 간결하게 작성하세요
 - 텍스트에 날짜/시간 정보가 없으면 현재 시간 기준으로 설정하세요
 - JSON 외의 다른 텍스트는 절대 포함하지 마세요
 - 마크다운 코드 블록(\`\`\`)을 사용하지 마세요
 - 응답은 순수한 JSON 객체만 포함해야 합니다
 `;
+    } else {
+        return `
+Please analyze the following text and accurately extract calendar event information to be saved.
+
+Text: "${text}"
+
+Analysis Requirements:
+
+1. Title Extraction:
+   - Analyze the context of the text to extract the most appropriate event title
+   - If there is a meeting name, appointment name, event name, etc., use that first
+   - If not, combine key keywords from the text to create a concise and clear title
+   - Keep the title within 50 characters and clearly express the nature of the event
+
+2. Date/Time Information Analysis:
+   - Accurately identify the date and time specified in the text
+   - Calculate relative expressions like "tomorrow", "next Monday", "3 PM" based on the current time
+   - If only date is present without time: set to 9:00 AM
+   - If only time is present without date: set to today's date
+   - Extract both start and end times (if end time is missing, set to start time + 1 hour)
+
+3. Event Description Summary:
+   - Summarize the text into content suitable for calendar storage
+   - Extract only key information and write concisely
+   - Include important details from the original text
+
+4. Location Extraction:
+   - Meeting rooms, addresses, online platforms, building names, etc.
+   - Extract location-related information if present in the text
+
+5. Attendees Extraction:
+   - List of attendees by email address or name
+   - People following keywords like "attendees:", "participants:", "with:", etc.
+
+Current Time: ${currentDate.toISOString()}
+Current Date: ${currentDate.toLocaleDateString(locale)}
+
+Important: You must respond ONLY in the JSON format below. Do not include any other text or explanations.
+
+{
+    "title": "Event Title",
+    "description": "Event Description",
+    "startDate": "YYYY-MM-DDTHH:MM:SS",
+    "endDate": "YYYY-MM-DDTHH:MM:SS", 
+    "location": "Location",
+    "attendees": ["attendee1", "attendee2"],
+    "reminder": "15 minutes before"
+}
+
+Notes:
+- You must respond in valid JSON format only
+- Date/time format must follow ISO 8601 standard (YYYY-MM-DDTHH:MM:SS)
+- Timezone should be based on ${timeZone}
+- Keep the title within 50 characters and concise
+- If no date/time information is in the text, set based on current time
+- Do not include any text other than JSON
+- Do not use markdown code blocks (\`\`\`)
+- The response must contain only a pure JSON object
+`;
+    }
+}
+
+/**
+ * Claude API implementation (Anthropic)
+ * @class ClaudeAPI
+ * @extends BaseLLMAPI
+ */
+class ClaudeAPI extends BaseLLMAPI {
+    /**
+     * Create a ClaudeAPI instance
+     * @param {string} apiKey - Claude API key from Anthropic Console
+     */
+    constructor(apiKey) {
+        super(apiKey);
+        this.baseUrl = 'https://api.anthropic.com/v1/messages';
+    }
+
+    async callAPI(prompt, options = {}) {
+        try {
+            console.log('=== Claude API call start ===');
+            console.log('API URL:', this.baseUrl);
+            console.log('Prompt length:', prompt.length);
+            console.log('Prompt preview:', prompt.substring(0, 200) + '...');
+            
+            const requestBody = {
+                model: 'claude-3-5-sonnet-20241022',
+                max_tokens: options.maxTokens || 1000,
+                temperature: options.temperature || 0.7,
+                messages: [{
+                    role: 'user',
+                    content: prompt
+                }]
+            };
+            
+            console.log('Request body:', JSON.stringify(requestBody, null, 2));
+            
+            const response = await fetch(this.baseUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': this.apiKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            console.log('HTTP response status:', response.status, response.statusText);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('HTTP error response body:', errorText);
+                throw new Error(`API 호출 실패: ${response.status} ${response.statusText}`);
+            }
+
+            const responseText = await response.text();
+            console.log('=== Original response text ===');
+            console.log(responseText);
+            console.log('=== Original response text end ===');
+            
+            const data = JSON.parse(responseText);
+            console.log('=== Parsed response data ===');
+            console.log(JSON.stringify(data, null, 2));
+            console.log('=== Parsed response data end ===');
+            
+            if (data.content && data.content[0] && data.content[0].text) {
+                const text = data.content[0].text;
+                console.log('=== Extracted text ===');
+                console.log(text);
+                console.log('=== Extracted text end ===');
+                return text;
+            } else {
+                console.error('Response structure issue:', data);
+                throw new Error('API response format is incorrect.');
+            }
+        } catch (error) {
+            console.error('=== Claude API call error ===');
+            console.error('Error type:', error.constructor.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            throw error;
+        }
+    }
+
+    async extractCalendarInfo(text) {
+        const language = detectLanguage(text);
+        const prompt = generateCalendarPrompt(text, language);
 
         try {
             const response = await this.callAPI(prompt, { temperature: 0.3 });
-            console.log('Claude API 원본 응답:', response);
+            console.log('Claude API original response:', response);
             
             try {
-                console.log('원본 응답:', response);
+                console.log('Original response:', response);
                 
                 // Try direct JSON parsing first
                 const parsed = JSON.parse(response);
@@ -492,14 +619,14 @@ class ClaudeAPI extends BaseLLMAPI {
                     console.error('JSON cleaning failed:', cleanError);
                 }
                 
-                // JSON 추출 시도
+                // Try to extract JSON
                 const extractedJson = this.extractJSONFromResponse(response);
                 if (extractedJson) {
                     console.log('JSON 추출 성공:', extractedJson);
                     return extractedJson;
                 }
                 
-                // 응답 정리 후 재시도
+                // Retry after cleaning response
                 const cleanedResponse = this.cleanResponse(response);
                 if (cleanedResponse !== response) {
                     console.log('응답 정리 후 재시도:', cleanedResponse);
@@ -512,11 +639,11 @@ class ClaudeAPI extends BaseLLMAPI {
                     }
                 }
                 
-                // 텍스트에서 제목 추출 시도
+                // Try to extract title from text
                 const extractedTitle = this.extractTitleFromText(text);
                 console.log('텍스트에서 추출한 제목:', extractedTitle);
                 
-                // 제목 추출 실패 시 오류 발생
+                // Throw error if title extraction fails
                 if (!extractedTitle) {
                     throw new Error('제공된 텍스트에서 일정 정보를 추출할 수 없습니다.');
                 }
@@ -641,7 +768,7 @@ class ClaudeAPI extends BaseLLMAPI {
                 console.error('일정 분석 JSON 파싱 실패:', parseError);
                 console.log('파싱 실패한 응답:', response);
                 
-                // JSON 추출 시도
+                // Try to extract JSON
                 const extractedJson = this.extractJSONFromResponse(response);
                 if (extractedJson) {
                     console.log('일정 분석 JSON 추출 성공:', extractedJson);
@@ -665,8 +792,16 @@ class ClaudeAPI extends BaseLLMAPI {
     }
 }
 
-// ChatGPT API implementation
+/**
+ * ChatGPT API implementation (OpenAI)
+ * @class ChatGPTAPI
+ * @extends BaseLLMAPI
+ */
 class ChatGPTAPI extends BaseLLMAPI {
+    /**
+     * Create a ChatGPTAPI instance
+     * @param {string} apiKey - ChatGPT API key from OpenAI Platform
+     */
     constructor(apiKey) {
         super(apiKey);
         this.baseUrl = 'https://api.openai.com/v1/chat/completions';
@@ -689,7 +824,7 @@ class ChatGPTAPI extends BaseLLMAPI {
                 temperature: options.temperature || 0.7
             };
             
-            console.log('요청 본문:', JSON.stringify(requestBody, null, 2));
+            console.log('Request body:', JSON.stringify(requestBody, null, 2));
             
             const response = await fetch(this.baseUrl, {
                 method: 'POST',
@@ -700,11 +835,11 @@ class ChatGPTAPI extends BaseLLMAPI {
                 body: JSON.stringify(requestBody)
             });
 
-            console.log('HTTP 응답 상태:', response.status, response.statusText);
+            console.log('HTTP response status:', response.status, response.statusText);
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('HTTP 오류 응답 본문:', errorText);
+                console.error('HTTP error response body:', errorText);
                 throw new Error(`API 호출 실패: ${response.status} ${response.statusText}`);
             }
 
@@ -726,83 +861,27 @@ class ChatGPTAPI extends BaseLLMAPI {
                 return text;
             } else {
                 console.error('응답 구조 문제:', data);
-                throw new Error('API 응답 형식이 올바르지 않습니다.');
+                throw new Error('API response format is incorrect.');
             }
         } catch (error) {
-            console.error('=== ChatGPT API 호출 오류 ===');
-            console.error('오류 타입:', error.constructor.name);
-            console.error('오류 메시지:', error.message);
-            console.error('오류 스택:', error.stack);
+            console.error('=== ChatGPT API call error ===');
+            console.error('Error type:', error.constructor.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
             throw error;
         }
     }
 
     async extractCalendarInfo(text) {
-        const prompt = `
-다음 텍스트를 분석하여 캘린더에 저장할 일정 정보를 정확하게 추출해주세요.
-
-텍스트: "${text}"
-
-분석 요구사항:
-
-1. 제목(title) 추출:
-   - 텍스트의 맥락을 분석하여 가장 적절한 일정 제목을 추출하세요
-   - 회의명, 미팅명, 약속명, 이벤트명 등이 있으면 그것을 우선 사용
-   - 없으면 텍스트의 핵심 키워드를 조합하여 간결하고 명확한 제목 생성
-   - 제목은 50자 이내로 작성하고, 일정의 성격을 명확히 표현
-
-2. 날짜/시간 정보 분석:
-   - 텍스트에서 명시된 날짜와 시간을 정확히 파악
-   - "내일", "다음주 월요일", "오후 3시" 등의 상대적 표현을 현재 시간 기준으로 계산
-   - 날짜만 있고 시간이 없는 경우: 오전 9시로 설정
-   - 시간만 있고 날짜가 없는 경우: 오늘 날짜로 설정
-   - 시작 시간과 종료 시간을 모두 추출 (종료 시간이 없으면 시작 시간 + 1시간)
-
-3. 일정 내용 요약(description):
-   - 텍스트를 캘린더에 저장할 내용으로 요약
-   - 핵심 정보만 추출하여 간결하게 작성
-   - 원본 텍스트의 중요한 세부사항 포함
-
-4. 장소(location) 추출:
-   - 회의실, 주소, 온라인 플랫폼, 건물명 등
-   - 텍스트에서 장소 관련 정보가 있으면 추출
-
-5. 참석자(attendees) 추출:
-   - 이메일 주소나 이름으로 된 참석자 목록
-   - "참석자:", "참가자:", "함께:" 등의 키워드 뒤에 오는 사람들
-
-현재 시간: ${new Date().toISOString()}
-현재 날짜: ${new Date().toLocaleDateString('ko-KR')}
-
-중요: 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트나 설명은 포함하지 마세요.
-
-{
-    "title": "일정 제목",
-    "description": "일정 설명",
-    "startDate": "YYYY-MM-DDTHH:MM:SS",
-    "endDate": "YYYY-MM-DDTHH:MM:SS", 
-    "location": "장소",
-    "attendees": ["참석자1", "참석자2"],
-    "reminder": "15분 전"
-}
-
-주의사항:
-- 반드시 유효한 JSON 형식으로만 응답하세요
-- 날짜/시간 형식은 ISO 8601 표준을 따르세요 (YYYY-MM-DDTHH:MM:SS)
-- 시간대는 한국 시간(Asia/Seoul)을 기준으로 하세요
-- 제목은 50자 이내로 간결하게 작성하세요
-- 텍스트에 날짜/시간 정보가 없으면 현재 시간 기준으로 설정하세요
-- JSON 외의 다른 텍스트는 절대 포함하지 마세요
-- 마크다운 코드 블록(\`\`\`)을 사용하지 마세요
-- 응답은 순수한 JSON 객체만 포함해야 합니다
-`;
+        const language = detectLanguage(text);
+        const prompt = generateCalendarPrompt(text, language);
 
         try {
             const response = await this.callAPI(prompt, { temperature: 0.3 });
             console.log('ChatGPT API 원본 응답:', response);
             
             try {
-                console.log('원본 응답:', response);
+                console.log('Original response:', response);
                 const parsed = JSON.parse(response);
                 console.log('JSON 파싱 성공:', parsed);
                 return parsed;
@@ -810,14 +889,14 @@ class ChatGPTAPI extends BaseLLMAPI {
                 console.error('JSON 파싱 실패:', parseError);
                 console.log('파싱 실패한 응답:', response);
                 
-                // JSON 추출 시도
+                // Try to extract JSON
                 const extractedJson = this.extractJSONFromResponse(response);
                 if (extractedJson) {
                     console.log('JSON 추출 성공:', extractedJson);
                     return extractedJson;
                 }
                 
-                // 응답 정리 후 재시도
+                // Retry after cleaning response
                 const cleanedResponse = this.cleanResponse(response);
                 if (cleanedResponse !== response) {
                     console.log('응답 정리 후 재시도:', cleanedResponse);
@@ -830,11 +909,11 @@ class ChatGPTAPI extends BaseLLMAPI {
                     }
                 }
                 
-                // 텍스트에서 제목 추출 시도
+                // Try to extract title from text
                 const extractedTitle = this.extractTitleFromText(text);
                 console.log('텍스트에서 추출한 제목:', extractedTitle);
                 
-                // 제목 추출 실패 시 오류 발생
+                // Throw error if title extraction fails
                 if (!extractedTitle) {
                     throw new Error('제공된 텍스트에서 일정 정보를 추출할 수 없습니다.');
                 }
@@ -959,7 +1038,7 @@ class ChatGPTAPI extends BaseLLMAPI {
                 console.error('일정 분석 JSON 파싱 실패:', parseError);
                 console.log('파싱 실패한 응답:', response);
                 
-                // JSON 추출 시도
+                // Try to extract JSON
                 const extractedJson = this.extractJSONFromResponse(response);
                 if (extractedJson) {
                     console.log('일정 분석 JSON 추출 성공:', extractedJson);
@@ -983,8 +1062,16 @@ class ChatGPTAPI extends BaseLLMAPI {
     }
 }
 
-// Gemini API implementation
+/**
+ * Gemini API implementation (Google)
+ * @class GeminiAPI
+ * @extends BaseLLMAPI
+ */
 class GeminiAPI extends BaseLLMAPI {
+    /**
+     * Create a GeminiAPI instance
+     * @param {string} apiKey - Gemini API key from Google AI Studio
+     */
     constructor(apiKey) {
         super(apiKey);
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
@@ -1009,7 +1096,7 @@ class GeminiAPI extends BaseLLMAPI {
                 }
             };
             
-            console.log('요청 본문:', JSON.stringify(requestBody, null, 2));
+            console.log('Request body:', JSON.stringify(requestBody, null, 2));
             
             const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
                 method: 'POST',
@@ -1019,12 +1106,12 @@ class GeminiAPI extends BaseLLMAPI {
                 body: JSON.stringify(requestBody)
             });
 
-            console.log('HTTP 응답 상태:', response.status, response.statusText);
-            console.log('응답 헤더:', Object.fromEntries(response.headers.entries()));
+            console.log('HTTP response status:', response.status, response.statusText);
+            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('HTTP 오류 응답 본문:', errorText);
+                console.error('HTTP error response body:', errorText);
                 throw new Error(`API 호출 실패: ${response.status} ${response.statusText}`);
             }
 
@@ -1048,83 +1135,27 @@ class GeminiAPI extends BaseLLMAPI {
                 return text;
             } else {
                 console.error('응답 구조 문제:', data);
-                throw new Error('API 응답 형식이 올바르지 않습니다.');
+                throw new Error('API response format is incorrect.');
             }
         } catch (error) {
-            console.error('=== Gemini API 호출 오류 ===');
-            console.error('오류 타입:', error.constructor.name);
-            console.error('오류 메시지:', error.message);
-            console.error('오류 스택:', error.stack);
+            console.error('=== Gemini API call error ===');
+            console.error('Error type:', error.constructor.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
             throw error;
         }
     }
 
     async extractCalendarInfo(text) {
-        const prompt = `
-다음 텍스트를 분석하여 캘린더에 저장할 일정 정보를 정확하게 추출해주세요.
-
-텍스트: "${text}"
-
-분석 요구사항:
-
-1. 제목(title) 추출:
-   - 텍스트의 맥락을 분석하여 가장 적절한 일정 제목을 추출하세요
-   - 회의명, 미팅명, 약속명, 이벤트명 등이 있으면 그것을 우선 사용
-   - 없으면 텍스트의 핵심 키워드를 조합하여 간결하고 명확한 제목 생성
-   - 제목은 50자 이내로 작성하고, 일정의 성격을 명확히 표현
-
-2. 날짜/시간 정보 분석:
-   - 텍스트에서 명시된 날짜와 시간을 정확히 파악
-   - "내일", "다음주 월요일", "오후 3시" 등의 상대적 표현을 현재 시간 기준으로 계산
-   - 날짜만 있고 시간이 없는 경우: 오전 9시로 설정
-   - 시간만 있고 날짜가 없는 경우: 오늘 날짜로 설정
-   - 시작 시간과 종료 시간을 모두 추출 (종료 시간이 없으면 시작 시간 + 1시간)
-
-3. 일정 내용 요약(description):
-   - 텍스트를 캘린더에 저장할 내용으로 요약
-   - 핵심 정보만 추출하여 간결하게 작성
-   - 원본 텍스트의 중요한 세부사항 포함
-
-4. 장소(location) 추출:
-   - 회의실, 주소, 온라인 플랫폼, 건물명 등
-   - 텍스트에서 장소 관련 정보가 있으면 추출
-
-5. 참석자(attendees) 추출:
-   - 이메일 주소나 이름으로 된 참석자 목록
-   - "참석자:", "참가자:", "함께:" 등의 키워드 뒤에 오는 사람들
-
-현재 시간: ${new Date().toISOString()}
-현재 날짜: ${new Date().toLocaleDateString('ko-KR')}
-
-중요: 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트나 설명은 포함하지 마세요.
-
-{
-    "title": "일정 제목",
-    "description": "일정 설명",
-    "startDate": "YYYY-MM-DDTHH:MM:SS",
-    "endDate": "YYYY-MM-DDTHH:MM:SS", 
-    "location": "장소",
-    "attendees": ["참석자1", "참석자2"],
-    "reminder": "15분 전"
-}
-
-주의사항:
-- 반드시 유효한 JSON 형식으로만 응답하세요
-- 날짜/시간 형식은 ISO 8601 표준을 따르세요 (YYYY-MM-DDTHH:MM:SS)
-- 시간대는 한국 시간(Asia/Seoul)을 기준으로 하세요
-- 제목은 50자 이내로 간결하게 작성하세요
-- 텍스트에 날짜/시간 정보가 없으면 현재 시간 기준으로 설정하세요
-- JSON 외의 다른 텍스트는 절대 포함하지 마세요
-- 마크다운 코드 블록(\`\`\`)을 사용하지 마세요
-- 응답은 순수한 JSON 객체만 포함해야 합니다
-`;
+        const language = detectLanguage(text);
+        const prompt = generateCalendarPrompt(text, language);
 
         try {
             const response = await this.callAPI(prompt, { temperature: 0.3 });
             console.log('Gemini API 원본 응답:', response);
             
             try {
-                console.log('원본 응답:', response);
+                console.log('Original response:', response);
                 const parsed = JSON.parse(response);
                 console.log('JSON 파싱 성공:', parsed);
                 return parsed;
@@ -1132,14 +1163,14 @@ class GeminiAPI extends BaseLLMAPI {
                 console.error('JSON 파싱 실패:', parseError);
                 console.log('파싱 실패한 응답:', response);
                 
-                // JSON 추출 시도
+                // Try to extract JSON
                 const extractedJson = this.extractJSONFromResponse(response);
                 if (extractedJson) {
                     console.log('JSON 추출 성공:', extractedJson);
                     return extractedJson;
                 }
                 
-                // 응답 정리 후 재시도
+                // Retry after cleaning response
                 const cleanedResponse = this.cleanResponse(response);
                 if (cleanedResponse !== response) {
                     console.log('응답 정리 후 재시도:', cleanedResponse);
@@ -1152,11 +1183,11 @@ class GeminiAPI extends BaseLLMAPI {
                     }
                 }
                 
-                // 텍스트에서 제목 추출 시도
+                // Try to extract title from text
                 const extractedTitle = this.extractTitleFromText(text);
                 console.log('텍스트에서 추출한 제목:', extractedTitle);
                 
-                // 제목 추출 실패 시 오류 발생
+                // Throw error if title extraction fails
                 if (!extractedTitle) {
                     throw new Error('제공된 텍스트에서 일정 정보를 추출할 수 없습니다.');
                 }
@@ -1281,7 +1312,7 @@ class GeminiAPI extends BaseLLMAPI {
                 console.error('일정 분석 JSON 파싱 실패:', parseError);
                 console.log('파싱 실패한 응답:', response);
                 
-                // JSON 추출 시도
+                // Try to extract JSON
                 const extractedJson = this.extractJSONFromResponse(response);
                 if (extractedJson) {
                     console.log('일정 분석 JSON 추출 성공:', extractedJson);
@@ -1359,7 +1390,7 @@ class GoogleCalendarAPI {
             }
             
             if (response.status === 401) {
-                throw new Error(`인증 오류 (401): 토큰이 만료되었거나 유효하지 않습니다. 설정에서 다시 인증해주세요.`);
+                throw new Error(`Authentication error (401): Token has expired or is invalid. Please re-authenticate in settings.`);
             } else if (response.status === 403) {
                 // More specific 403 error handling
                 if (errorData.error && errorData.error.message) {
@@ -1414,16 +1445,19 @@ class GoogleCalendarAPI {
         // Validate and filter attendee emails
         const validAttendees = this.filterValidAttendees(calendarData.attendees || []);
 
+        // Detect user timezone
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
         return {
             summary: calendarData.title,
             description: description,
             start: {
                 dateTime: startDate.toISOString(),
-                timeZone: 'Asia/Seoul'
+                timeZone: timeZone
             },
             end: {
                 dateTime: endDate.toISOString(),
-                timeZone: 'Asia/Seoul'
+                timeZone: timeZone
             },
             location: calendarData.location,
             attendees: validAttendees,
@@ -1639,15 +1673,15 @@ async function initializeDefaultSettings() {
         // Initialize with default values if no existing settings
         if (Object.keys(currentSettings).length === 0) {
             await chrome.storage.local.set(defaultSettings);
-            console.log('기본 설정이 초기화되었습니다.');
+            console.log('Default settings initialized.');
         } else {
             // Add new fields to existing settings (migration)
             const updatedSettings = { ...defaultSettings, ...currentSettings };
             await chrome.storage.local.set(updatedSettings);
-            console.log('설정이 업데이트되었습니다.');
+            console.log('Settings updated.');
         }
     } catch (error) {
-        console.error('설정 초기화 오류:', error);
+        console.error('Settings initialization error:', error);
     }
 }
 
@@ -1658,7 +1692,7 @@ function createContextMenus() {
         // Create main menu
         chrome.contextMenus.create({
             id: 'contextclip-main',
-            title: 'ContextClipCalendar',
+            title: chrome.i18n.getMessage('appName'),
             contexts: ['selection']
         });
         
@@ -1666,7 +1700,7 @@ function createContextMenus() {
         chrome.contextMenus.create({
             id: 'contextclip-calendar',
             parentId: 'contextclip-main',
-            title: '📅 일정 등록',
+            title: '📅 ' + chrome.i18n.getMessage('contextMenuTitle'),
             contexts: ['selection']
         });
     });
@@ -2162,16 +2196,16 @@ async function createGoogleCalendarEvent(calendarData, accessToken) {
         // Get primary calendar info
         const primaryCalendar = await calendar.getPrimaryCalendar();
         const calendarId = primaryCalendar.id;
-        console.log('사용할 캘린더 ID:', calendarId);
+        console.log('Calendar ID to use:', calendarId);
         
         // Format event data
         const eventData = calendar.formatEventData(calendarData);
-        console.log('포맷된 일정 데이터:', eventData);
+        console.log('Formatted calendar event data:', eventData);
         
         // Create event (duplicate check handled internally in createEvent)
         const result = await calendar.createEvent(calendarId, eventData);
         
-        console.log('일정 생성 결과:', result);
+        console.log('Calendar event creation result:', result);
         
         return {
             eventId: result.id,
@@ -2189,24 +2223,31 @@ async function createGoogleCalendarEvent(calendarData, accessToken) {
     }
 }
 
-// Get settings
+/**
+ * Get extension settings from Chrome storage
+ * @returns {Promise<Object>} Settings object
+ */
 async function getSettings() {
     try {
         const result = await chrome.storage.local.get();
         return result;
     } catch (error) {
-        console.error('설정 가져오기 오류:', error);
+        console.error('Settings load error:', error);
         return {};
     }
 }
 
-// Save settings
+/**
+ * Save extension settings to Chrome storage
+ * @param {Object} settings - Settings object to save
+ * @returns {Promise<Object>} Result object with success status
+ */
 async function saveSettings(settings) {
     try {
         await chrome.storage.local.set(settings);
         return { success: true };
     } catch (error) {
-        console.error('설정 저장 오류:', error);
+        console.error('Settings save error:', error);
         return { success: false, error: error.message };
     }
 }
@@ -2227,21 +2268,21 @@ async function extractCalendarData(text, apiKey) {
         // Create LLM instance
         const llm = createLLMInstance('gemini', llmApiKey);
         
-        console.log('일정 데이터 추출 시작');
+        console.log('Starting calendar data extraction');
         
         // Step 1: Basic calendar info extraction
         const calendarInfo = await llm.extractCalendarInfo(text);
-        console.log('기본 일정 정보 추출 완료:', calendarInfo);
+        console.log('Basic calendar info extraction completed:', calendarInfo);
         
         // Validate calendar info
         if (!calendarInfo || !calendarInfo.title || calendarInfo.title === '새로운 일정') {
-            throw new Error('제공된 텍스트에서 일정 정보를 추출할 수 없습니다.');
+            throw new Error('Unable to extract schedule information from the provided text.');
         }
         
         // Step 2: Detailed analysis (optional)
         try {
             const detailedAnalysis = await llm.analyzeCalendarText(text);
-            console.log('상세 분석 완료:', detailedAnalysis);
+            console.log('Detailed analysis completed:', detailedAnalysis);
             
             // Merge detailed analysis results with basic info
             const enhancedInfo = {
@@ -2262,28 +2303,34 @@ async function extractCalendarData(text, apiKey) {
                 )) || calendarInfo.location
             };
             
-            console.log('향상된 일정 정보:', enhancedInfo);
+            console.log('Enhanced calendar info:', enhancedInfo);
             return enhancedInfo;
         } catch (analysisError) {
-            console.warn('상세 분석 실패, 기본 정보만 사용:', analysisError.message);
+            console.warn('Detailed analysis failed, using basic info only:', analysisError.message);
             return calendarInfo;
         }
     } catch (error) {
-        console.error('일정 데이터 추출 오류:', error);
+        console.error('Calendar data extraction error:', error);
         throw error; // Re-throw error for handling upstream
     }
 }
 
+/**
+ * Generate a summary of the text
+ * @param {string} text - The text to summarize
+ * @param {string} apiKey - Gemini API key
+ * @returns {Promise<string>} Generated summary
+ */
 async function generateSummary(text, apiKey) {
     try {
         // Get Gemini API key from settings
         const settings = await getSettings();
         const llmApiKey = settings.geminiApiKey || apiKey;
         
-        console.log('요약 생성에 사용할 LLM: Gemini');
+        console.log('LLM to use for summary generation: Gemini');
         
         if (!llmApiKey) {
-            throw new Error('Gemini API 키가 설정되지 않았습니다.');
+            throw new Error('Gemini API key is not configured.');
         }
         
         // Create LLM instance
@@ -2291,23 +2338,28 @@ async function generateSummary(text, apiKey) {
         const summary = await llm.generateSummary(text, 200);
         return summary;
     } catch (error) {
-        console.error('요약 생성 오류:', error);
+        console.error('Summary generation error:', error);
         // Return basic summary on error
-        return `요약: ${text.substring(0, 100)}...`;
+        return `Summary: ${text.substring(0, 100)}...`;
     }
 }
 
-// Google OAuth token validation and refresh
+/**
+ * Validate and refresh Google OAuth token if needed
+ * @param {string} accessToken - Current access token
+ * @param {string} refreshToken - Refresh token for obtaining new access token
+ * @returns {Promise<Object>} Token validation result with refreshed token if needed
+ */
 async function validateAndRefreshToken(accessToken, refreshToken) {
     try {
-        console.log('토큰 유효성 검사 시작');
+        console.log('Starting token validation');
         
         // Test current token with a simple API call first
         const testResponse = await fetch('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + accessToken);
         
         if (testResponse.ok) {
             const tokenInfo = await testResponse.json();
-            console.log('토큰이 유효합니다:', tokenInfo);
+            console.log('Token is valid:', tokenInfo);
             
             // Check if token has required scopes
             const requiredScopes = [
@@ -2368,60 +2420,60 @@ async function validateAndRefreshToken(accessToken, refreshToken) {
 // Test Gemini API key
 async function testGeminiAPI(apiKey) {
     try {
-        console.log('Gemini API 키 테스트 시작');
+        console.log('Starting Gemini API key test');
         
         if (!apiKey || apiKey.trim() === '') {
-            return { success: false, error: 'API 키가 비어있습니다.' };
+            return { success: false, error: 'API key is empty.' };
         }
         
         // Create Gemini API instance
         const gemini = new GeminiAPI(apiKey.trim());
         
-        // Call API with simple test prompt
-        const testPrompt = '안녕하세요. 이것은 API 키 테스트입니다. "테스트 성공"이라고만 응답해주세요.';
+        // Call API with simple test prompt (supports both languages)
+        const testPrompt = 'Hello. This is an API key test. Please respond with only "test success" or "테스트 성공".';
         
         const response = await gemini.callAPI(testPrompt, { 
             temperature: 0.1,
             maxTokens: 50 
         });
         
-        console.log('Gemini API 테스트 응답:', response);
+        console.log('Gemini API test response:', response);
         
         // Check if response exists and is valid
         if (response && typeof response === 'string' && response.trim().length > 0) {
-            // Check if response contains "테스트" or "성공" keywords
+            // Check if response contains "test" or "success" keywords
             const responseText = response.toLowerCase().trim();
-            if (responseText.includes('테스트') || responseText.includes('성공')) {
-                return { success: true, message: 'API 키가 유효합니다.' };
+            if (responseText.includes('test') || responseText.includes('success') || responseText.includes('테스트') || responseText.includes('성공')) {
+                return { success: true, message: 'API key is valid.' };
             } else {
                 // Even if expected keywords are missing, treat as success if API is working
-                console.log('응답에 예상 키워드가 없지만 API가 정상 작동함:', response);
-                return { success: true, message: 'API 키가 유효합니다.' };
+                console.log('Response missing expected keywords but API is working:', response);
+                return { success: true, message: 'API key is valid.' };
             }
         } else {
-            return { success: false, error: 'API 응답이 비어있습니다.' };
+            return { success: false, error: 'API response is empty.' };
         }
         
     } catch (error) {
-        console.error('Gemini API 테스트 오류:', error);
+        console.error('Gemini API test error:', error);
         
         // Provide specific error messages
-        let errorMessage = 'API 키 테스트 실패';
+        let errorMessage = 'API key test failed';
         
         if (error.message.includes('400')) {
-            errorMessage = 'API 키가 유효하지 않습니다. 올바른 API 키를 입력해주세요.';
+            errorMessage = 'API key is invalid. Please enter a valid API key.';
         } else if (error.message.includes('401')) {
-            errorMessage = 'API 키 인증에 실패했습니다. API 키를 확인해주세요.';
+            errorMessage = 'API key authentication failed. Please check your API key.';
         } else if (error.message.includes('403')) {
-            errorMessage = 'API 키에 권한이 없습니다. API 키를 확인해주세요.';
+            errorMessage = 'API key does not have required permissions. Please check your API key.';
         } else if (error.message.includes('429')) {
-            errorMessage = 'API 호출 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+            errorMessage = 'API call limit exceeded. Please try again later.';
         } else if (error.message.includes('500')) {
-            errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            errorMessage = 'Server error occurred. Please try again later.';
         } else if (error.message.includes('network') || error.message.includes('fetch')) {
-            errorMessage = '네트워크 연결을 확인해주세요.';
+            errorMessage = 'Please check your network connection.';
         } else {
-            errorMessage = `API 키 테스트 실패: ${error.message}`;
+            errorMessage = `API key test failed: ${error.message}`;
         }
         
         return { success: false, error: errorMessage };
@@ -2431,65 +2483,65 @@ async function testGeminiAPI(apiKey) {
 // Test Claude API key
 async function testClaudeAPI(apiKey) {
     try {
-        console.log('Claude API 키 테스트 시작');
+        console.log('Starting Claude API key test');
         
         if (!apiKey || apiKey.trim() === '') {
-            return { success: false, error: 'API 키가 비어있습니다.' };
+            return { success: false, error: 'API key is empty.' };
         }
         
         // Create Claude API instance
         const claude = new ClaudeAPI(apiKey.trim());
         
-        // Call API with simple test prompt
-        const testPrompt = '안녕하세요. 이것은 API 키 테스트입니다. "테스트 성공"이라고만 응답해주세요.';
+        // Call API with simple test prompt (supports both languages)
+        const testPrompt = 'Hello. This is an API key test. Please respond with only "test success" or "테스트 성공".';
         
         const response = await claude.callAPI(testPrompt, { 
             temperature: 0.1,
             maxTokens: 50 
         });
         
-        console.log('Claude API 테스트 응답:', response);
+        console.log('Claude API test response:', response);
         
         // Check if response exists and is valid
         if (response && typeof response === 'string' && response.trim().length > 0) {
-            // Check if response contains "테스트" or "성공" keywords
-            if (response.includes('테스트') || response.includes('성공')) {
+            // Check if response contains "test" or "success" keywords
+            if (response.toLowerCase().includes('test') || response.toLowerCase().includes('success') || response.includes('테스트') || response.includes('성공')) {
                 return { 
                     success: true, 
-                    message: 'Claude API 키가 유효합니다!',
+                    message: 'Claude API key is valid!',
                     response: response.trim()
                 };
             } else {
                 return { 
                     success: true, 
-                    message: 'Claude API 키가 유효합니다! (응답: ' + response.trim() + ')',
+                    message: 'Claude API key is valid! (Response: ' + response.trim() + ')',
                     response: response.trim()
                 };
             }
         } else {
-            return { success: false, error: 'API 응답이 비어있거나 올바르지 않습니다.' };
+            return { success: false, error: 'API response is empty or invalid.' };
         }
         
     } catch (error) {
-        console.error('Claude API 테스트 오류:', error);
+        console.error('Claude API test error:', error);
         
         // Provide specific error messages
-        let errorMessage = 'API 키 테스트 실패';
+        let errorMessage = 'API key test failed';
         
         if (error.message.includes('400')) {
-            errorMessage = 'API 키가 유효하지 않습니다. 올바른 API 키를 입력해주세요.';
+            errorMessage = 'API key is invalid. Please enter a valid API key.';
         } else if (error.message.includes('401')) {
-            errorMessage = 'API 키 인증에 실패했습니다. API 키를 확인해주세요.';
+            errorMessage = 'API key authentication failed. Please check your API key.';
         } else if (error.message.includes('403')) {
-            errorMessage = 'API 키에 권한이 없습니다. API 키를 확인해주세요.';
+            errorMessage = 'API key does not have required permissions. Please check your API key.';
         } else if (error.message.includes('429')) {
-            errorMessage = 'API 호출 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+            errorMessage = 'API call limit exceeded. Please try again later.';
         } else if (error.message.includes('500')) {
-            errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            errorMessage = 'Server error occurred. Please try again later.';
         } else if (error.message.includes('network') || error.message.includes('fetch')) {
-            errorMessage = '네트워크 연결을 확인해주세요.';
+            errorMessage = 'Please check your network connection.';
         } else {
-            errorMessage = `API 키 테스트 실패: ${error.message}`;
+            errorMessage = `API key test failed: ${error.message}`;
         }
         
         return { success: false, error: errorMessage };
@@ -2499,65 +2551,65 @@ async function testClaudeAPI(apiKey) {
 // Test ChatGPT API key
 async function testChatgptAPI(apiKey) {
     try {
-        console.log('ChatGPT API 키 테스트 시작');
+        console.log('Starting ChatGPT API key test');
         
         if (!apiKey || apiKey.trim() === '') {
-            return { success: false, error: 'API 키가 비어있습니다.' };
+            return { success: false, error: 'API key is empty.' };
         }
         
         // Create ChatGPT API instance
         const chatgpt = new ChatGPTAPI(apiKey.trim());
         
-        // Call API with simple test prompt
-        const testPrompt = '안녕하세요. 이것은 API 키 테스트입니다. "테스트 성공"이라고만 응답해주세요.';
+        // Call API with simple test prompt (supports both languages)
+        const testPrompt = 'Hello. This is an API key test. Please respond with only "test success" or "테스트 성공".';
         
         const response = await chatgpt.callAPI(testPrompt, { 
             temperature: 0.1,
             maxTokens: 50 
         });
         
-        console.log('ChatGPT API 테스트 응답:', response);
+        console.log('ChatGPT API test response:', response);
         
         // Check if response exists and is valid
         if (response && typeof response === 'string' && response.trim().length > 0) {
-            // Check if response contains "테스트" or "성공" keywords
-            if (response.includes('테스트') || response.includes('성공')) {
+            // Check if response contains "test" or "success" keywords
+            if (response.toLowerCase().includes('test') || response.toLowerCase().includes('success') || response.includes('테스트') || response.includes('성공')) {
                 return { 
                     success: true, 
-                    message: 'ChatGPT API 키가 유효합니다!',
+                    message: 'ChatGPT API key is valid!',
                     response: response.trim()
                 };
             } else {
                 return { 
                     success: true, 
-                    message: 'ChatGPT API 키가 유효합니다! (응답: ' + response.trim() + ')',
+                    message: 'ChatGPT API key is valid! (Response: ' + response.trim() + ')',
                     response: response.trim()
                 };
             }
         } else {
-            return { success: false, error: 'API 응답이 비어있거나 올바르지 않습니다.' };
+            return { success: false, error: 'API response is empty or invalid.' };
         }
         
     } catch (error) {
-        console.error('ChatGPT API 테스트 오류:', error);
+        console.error('ChatGPT API test error:', error);
         
         // Provide specific error messages
-        let errorMessage = 'API 키 테스트 실패';
+        let errorMessage = 'API key test failed';
         
         if (error.message.includes('400')) {
-            errorMessage = 'API 키가 유효하지 않습니다. 올바른 API 키를 입력해주세요.';
+            errorMessage = 'API key is invalid. Please enter a valid API key.';
         } else if (error.message.includes('401')) {
-            errorMessage = 'API 키 인증에 실패했습니다. API 키를 확인해주세요.';
+            errorMessage = 'API key authentication failed. Please check your API key.';
         } else if (error.message.includes('403')) {
-            errorMessage = 'API 키에 권한이 없습니다. API 키를 확인해주세요.';
+            errorMessage = 'API key does not have required permissions. Please check your API key.';
         } else if (error.message.includes('429')) {
-            errorMessage = 'API 호출 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+            errorMessage = 'API call limit exceeded. Please try again later.';
         } else if (error.message.includes('500')) {
-            errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            errorMessage = 'Server error occurred. Please try again later.';
         } else if (error.message.includes('network') || error.message.includes('fetch')) {
-            errorMessage = '네트워크 연결을 확인해주세요.';
+            errorMessage = 'Please check your network connection.';
         } else {
-            errorMessage = `API 키 테스트 실패: ${error.message}`;
+            errorMessage = `API key test failed: ${error.message}`;
         }
         
         return { success: false, error: errorMessage };
@@ -3013,7 +3065,7 @@ async function getOAuthSetupGuide() {
         return guide;
         
     } catch (error) {
-        console.error('OAuth 설정 가이드 생성 오류:', error);
+        console.error('OAuth settings guide generation error:', error);
         return { 
             success: false, 
             error: '설정 가이드를 생성할 수 없습니다.',

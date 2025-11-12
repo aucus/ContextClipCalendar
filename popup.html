@@ -636,7 +636,7 @@
             </div>
             <div>
                 <h1 class="title">ContextClipCalendar</h1>
-                <p class="subtitle">AI 기반 스마트 일정 등록</p>
+                <p class="subtitle" data-i18n="subtitle">AI 기반 스마트 일정 등록</p>
             </div>
         </div>
     </div>
@@ -644,7 +644,7 @@
     <!-- Selected Text Display -->
     <div id="selectedTextContainer" class="container hidden">
         <div class="text-container">
-            <h3 class="text-label">선택된 텍스트</h3>
+            <h3 class="text-label" data-i18n="selectedText">선택된 텍스트</h3>
             <div id="selectedText" class="selected-text"></div>
             <div id="textSource" class="text-source"></div>
         </div>
@@ -657,15 +657,15 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
             </svg>
         </div>
-        <h3 class="no-text-title">📋 클립보드에서 일정 텍스트 가져오기</h3>
-        <p class="no-text-desc">일정으로 등록할 텍스트를 복사한 후<br>아래 버튼을 클릭하여 가져오세요</p>
+        <h3 class="no-text-title" data-i18n="getScheduleFromClipboard">📋 클립보드에서 일정 텍스트 가져오기</h3>
+        <p class="no-text-desc" data-i18n="copyTextToRegister">일정으로 등록할 텍스트를 복사한 후<br>아래 버튼을 클릭하여 가져오세요</p>
         
         <!-- Clipboard text import button -->
         <button id="clipboardBtn" class="clipboard-btn">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
             </svg>
-            <span>📋 클립보드에서 가져오기</span>
+            <span data-i18n="getFromClipboard">📋 클립보드에서 가져오기</span>
         </button>
     </div>
 
@@ -676,14 +676,14 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
-            <span>📅 일정 등록</span>
+            <span data-i18n="addToCalendar">📅 일정 등록</span>
         </button>
     </div>
 
     <!-- Loading State -->
     <div id="loadingState" class="loading-state hidden">
         <div class="spinner"></div>
-        <p class="loading-text">일정을 처리하고 있습니다...</p>
+        <p class="loading-text" data-i18n="processingSchedule">일정을 처리하고 있습니다...</p>
     </div>
 
     <!-- Success Message -->
@@ -693,7 +693,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
         </div>
-        <h3 class="success-title">성공!</h3>
+        <h3 class="success-title" data-i18n="success">성공!</h3>
         <p class="success-desc" id="successDesc"></p>
         <div class="success-details" id="successDetails"></div>
         <div class="success-actions" id="successActions"></div>
@@ -706,7 +706,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
-            <span>⚙️ 설정</span>
+            <span data-i18n="settings">⚙️ 설정</span>
         </button>
     </div>
 

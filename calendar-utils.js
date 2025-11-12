@@ -201,16 +201,19 @@ class GoogleCalendarAPI {
         // Validate and filter attendee emails
         const validAttendees = this.filterValidAttendees(calendarData.attendees || []);
 
+        // Detect user timezone
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
         return {
             summary: calendarData.title,
             description: description,
             start: {
                 dateTime: startDate.toISOString(),
-                timeZone: 'Asia/Seoul'
+                timeZone: timeZone
             },
             end: {
                 dateTime: endDate.toISOString(),
-                timeZone: 'Asia/Seoul'
+                timeZone: timeZone
             },
             location: calendarData.location,
             attendees: validAttendees,
@@ -454,8 +457,17 @@ class GoogleCalendarAPI {
 }
 
 // Utility functions for date/time handling (content script version)
+/**
+ * Calendar utility class for date/time parsing and formatting
+ * @class CalendarUtils
+ */
 class CalendarUtils {
-    // Parse natural language time expressions
+    /**
+     * Parse natural language time expressions (supports both Korean and English)
+     * @param {string} timeExpression - Natural language time expression (e.g., "tomorrow at 3 PM", "내일 오후 3시")
+     * @param {Date} baseDate - Base date to calculate relative dates from (default: current date)
+     * @returns {Date} Parsed date object
+     */
     static parseNaturalTime(timeExpression, baseDate = new Date()) {
         const expr = timeExpression.toLowerCase().trim();
         const result = new Date(baseDate);
@@ -495,34 +507,57 @@ class CalendarUtils {
                 result.setDate(result.getDate() + daysUntilFriday);
             }
             
-            // Time expressions
-            if (expr.includes('오전') || expr.includes('am')) {
-                const hourMatch = expr.match(/(\d+)시/);
+            // Time expressions - Support both Korean and English
+            // AM/오전 expressions
+            if (expr.includes('오전') || expr.match(/\bam\b/i)) {
+                // Korean: "오전 3시" or "3시 오전"
+                const hourMatch = expr.match(/(\d+)시/) || expr.match(/(\d+)\s*(?:am|오전)/i);
                 if (hourMatch) {
                     const hour = parseInt(hourMatch[1]);
                     result.setHours(hour < 12 ? hour : hour % 12, 0, 0, 0);
                 }
             }
-            else if (expr.includes('오후') || expr.includes('pm')) {
-                const hourMatch = expr.match(/(\d+)시/);
+            // PM/오후 expressions
+            else if (expr.includes('오후') || expr.match(/\bpm\b/i)) {
+                // Korean: "오후 3시" or "3시 오후"
+                const hourMatch = expr.match(/(\d+)시/) || expr.match(/(\d+)\s*(?:pm|오후)/i);
                 if (hourMatch) {
                     const hour = parseInt(hourMatch[1]);
                     result.setHours(hour === 12 ? 12 : hour + 12, 0, 0, 0);
                 }
             }
             else {
-                // 24-hour format
-                const timeMatch = expr.match(/(\d+):(\d+)/);
+                // 24-hour format: "14:30" or "14시 30분"
+                const timeMatch = expr.match(/(\d+):(\d+)/) || expr.match(/(\d+)시\s*(\d+)분/);
                 if (timeMatch) {
                     result.setHours(parseInt(timeMatch[1]), parseInt(timeMatch[2]), 0, 0);
                 }
                 else {
-                    const hourMatch = expr.match(/(\d+)시/);
+                    // Hour only: "3시" or "3 o'clock" or "3pm"
+                    const hourMatch = expr.match(/(\d+)시/) || expr.match(/(\d+)\s*(?:o'?clock|시)/i);
                     if (hourMatch) {
                         const hour = parseInt(hourMatch[1]);
+                        // If hour is 1-12 and no AM/PM specified, assume 24-hour format
                         result.setHours(hour, 0, 0, 0);
                     }
                 }
+            }
+            
+            // Additional English expressions: "in 2 days", "next Monday", etc.
+            const inDaysMatch = expr.match(/in\s+(\d+)\s+days?/i);
+            if (inDaysMatch) {
+                const days = parseInt(inDaysMatch[1]);
+                result.setDate(result.getDate() + days);
+            }
+            
+            const nextDayMatch = expr.match(/next\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i);
+            if (nextDayMatch) {
+                const dayName = nextDayMatch[1].toLowerCase();
+                const dayMap = { 'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3, 'thursday': 4, 'friday': 5, 'saturday': 6 };
+                const targetDay = dayMap[dayName];
+                const currentDay = result.getDay();
+                const daysToAdd = (targetDay - currentDay + 7) % 7 || 7;
+                result.setDate(result.getDate() + daysToAdd);
             }
             
             return result;
@@ -535,33 +570,41 @@ class CalendarUtils {
     // Format date for display
     static formatDisplayDate(date) {
         if (!(date instanceof Date) || isNaN(date.getTime())) {
-            return '날짜 없음';
+            return 'No Date';
         }
+
+        // Use browser locale and timezone
+        const locale = navigator.language || 'en-US';
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         const options = {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             weekday: 'long',
-            timeZone: 'Asia/Seoul'
+            timeZone: timeZone
         };
 
-        return date.toLocaleDateString('ko-KR', options);
+        return date.toLocaleDateString(locale, options);
     }
 
     // Format time for display
     static formatDisplayTime(date) {
         if (!(date instanceof Date) || isNaN(date.getTime())) {
-            return '시간 없음';
+            return 'No Time';
         }
+
+        // Use browser locale and timezone
+        const locale = navigator.language || 'en-US';
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         const options = {
             hour: '2-digit',
             minute: '2-digit',
-            timeZone: 'Asia/Seoul'
+            timeZone: timeZone
         };
 
-        return date.toLocaleTimeString('ko-KR', options);
+        return date.toLocaleTimeString(locale, options);
     }
 
     // Check if time is business hours

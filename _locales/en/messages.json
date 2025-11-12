@@ -1,0 +1,537 @@
+{
+  "appName": {
+    "message": "ContextClipCalendar",
+    "description": "Extension name"
+  },
+  "appDescription": {
+    "message": "AI-powered productivity tool that automatically registers clipboard text to Google Calendar",
+    "description": "Extension description"
+  },
+  "subtitle": {
+    "message": "AI-powered Smart Calendar Registration",
+    "description": "Subtitle in popup header"
+  },
+  "selectedText": {
+    "message": "Selected Text",
+    "description": "Label for selected text"
+  },
+  "getScheduleFromClipboard": {
+    "message": "Get Schedule Text from Clipboard",
+    "description": "Title for clipboard import section"
+  },
+  "copyTextToRegister": {
+    "message": "Copy the text you want to register as a schedule, then click the button below to import it",
+    "description": "Description for clipboard import"
+  },
+  "getFromClipboard": {
+    "message": "Get from Clipboard",
+    "description": "Button to get text from clipboard"
+  },
+  "addToCalendar": {
+    "message": "Add to Calendar",
+    "description": "Button to add schedule to calendar"
+  },
+  "processingSchedule": {
+    "message": "Processing schedule...",
+    "description": "Loading message"
+  },
+  "success": {
+    "message": "Success!",
+    "description": "Success message title"
+  },
+  "viewInCalendar": {
+    "message": "View in Calendar",
+    "description": "Button to view event in calendar"
+  },
+  "addNewSchedule": {
+    "message": "Add New Schedule",
+    "description": "Button to add new schedule"
+  },
+  "settings": {
+    "message": "Settings",
+    "description": "Settings button"
+  },
+  "clipboardPermissionRequired": {
+    "message": "Clipboard Access Permission Required",
+    "description": "Permission required message"
+  },
+  "clipboardPermissionDesc": {
+    "message": "Permission is required to read text from the clipboard.",
+    "description": "Permission description"
+  },
+  "allowPermission": {
+    "message": "Allow Permission",
+    "description": "Button to allow permission"
+  },
+  "permissionDenied": {
+    "message": "Permission Denied",
+    "description": "Permission denied message"
+  },
+  "permissionDeniedDesc": {
+    "message": "Clipboard access has been denied. Please allow clipboard permission in browser settings.",
+    "description": "Permission denied description"
+  },
+  "retry": {
+    "message": "Retry",
+    "description": "Retry button"
+  },
+  "reading": {
+    "message": "Reading...",
+    "description": "Reading state"
+  },
+  "fromClipboard": {
+    "message": "From Clipboard",
+    "description": "Text source indicator"
+  },
+  "fromSelection": {
+    "message": "Selected Text",
+    "description": "Text source indicator"
+  },
+  "title": {
+    "message": "Title:",
+    "description": "Label for title"
+  },
+  "date": {
+    "message": "Date:",
+    "description": "Label for date"
+  },
+  "time": {
+    "message": "Time:",
+    "description": "Label for time"
+  },
+  "location": {
+    "message": "Location:",
+    "description": "Label for location"
+  },
+  "extractFailed": {
+    "message": "Extraction Failed",
+    "description": "Extraction failed dialog title"
+  },
+  "close": {
+    "message": "Close",
+    "description": "Close button"
+  },
+  "errorProcessingSchedule": {
+    "message": "An error occurred while processing the schedule",
+    "description": "Error message for schedule processing"
+  },
+  "unableToExtractInfo": {
+    "message": "Unable to extract schedule information",
+    "description": "Error message for extraction failure"
+  },
+  "unableToExtractFromText": {
+    "message": "Unable to extract schedule information from the provided text",
+    "description": "Error message for extraction failure from text"
+  },
+  "errorSendingToSidePanel": {
+    "message": "An error occurred while sending data to the side panel",
+    "description": "Error message for side panel data transfer"
+  },
+  "errorOpeningSidePanel": {
+    "message": "An error occurred while opening the side panel",
+    "description": "Error message for side panel opening"
+  },
+  "scheduleSuccessfullyRegistered": {
+    "message": "Schedule successfully registered!",
+    "description": "Success message for schedule registration"
+  },
+  "errorRegisteringSchedule": {
+    "message": "An error occurred while registering the schedule",
+    "description": "Error message for schedule registration"
+  },
+  "pleaseSelectTextFirst": {
+    "message": "Please select text first",
+    "description": "Warning message to select text"
+  },
+  "contextMenuTitle": {
+    "message": "Add to Calendar",
+    "description": "Context menu title"
+  },
+  "settingsPageTitle": {
+    "message": "ContextClipCalendar Settings",
+    "description": "Settings page title"
+  },
+  "settingsPageDesc": {
+    "message": "Manage settings for AI-powered smart calendar registration",
+    "description": "Settings page description"
+  },
+  "aiModelSelection": {
+    "message": "AI Model Selection",
+    "description": "AI model selection section title"
+  },
+  "defaultAIModel": {
+    "message": "Default AI Model",
+    "description": "Default AI model label"
+  },
+  "selectAIModelDesc": {
+    "message": "Select the AI model to use for schedule information extraction",
+    "description": "AI model selection description"
+  },
+  "gemini": {
+    "message": "Gemini (Google)",
+    "description": "Gemini model name"
+  },
+  "geminiDesc": {
+    "message": "Free, fast response",
+    "description": "Gemini model description"
+  },
+  "claude": {
+    "message": "Claude (Anthropic)",
+    "description": "Claude model name"
+  },
+  "claudeDesc": {
+    "message": "High quality analysis",
+    "description": "Claude model description"
+  },
+  "chatgpt": {
+    "message": "ChatGPT (OpenAI)",
+    "description": "ChatGPT model name"
+  },
+  "chatgptDesc": {
+    "message": "Various models",
+    "description": "ChatGPT model description"
+  },
+  "apiKeySettings": {
+    "message": "API Key Settings",
+    "description": "API key settings section title"
+  },
+  "geminiApiKey": {
+    "message": "Gemini API Key",
+    "description": "Gemini API key label"
+  },
+  "geminiApiKeyDesc": {
+    "message": "Enter the Gemini API key issued from Google AI Studio.",
+    "description": "Gemini API key description"
+  },
+  "claudeApiKey": {
+    "message": "Claude API Key",
+    "description": "Claude API key label"
+  },
+  "claudeApiKeyDesc": {
+    "message": "Enter the Claude API key issued from Anthropic Console.",
+    "description": "Claude API key description"
+  },
+  "chatgptApiKey": {
+    "message": "ChatGPT API Key",
+    "description": "ChatGPT API key label"
+  },
+  "chatgptApiKeyDesc": {
+    "message": "Enter the API key issued from OpenAI Platform.",
+    "description": "ChatGPT API key description"
+  },
+  "test": {
+    "message": "Test",
+    "description": "Test button"
+  },
+  "saveApiKeys": {
+    "message": "Save API Keys",
+    "description": "Save API keys button"
+  },
+  "howToGetApiKeys": {
+    "message": "How to Get API Keys",
+    "description": "API key guide title"
+  },
+  "googleCalendarIntegration": {
+    "message": "Google Calendar Integration",
+    "description": "Google Calendar integration section title"
+  },
+  "oauthStatus": {
+    "message": "OAuth Settings Status",
+    "description": "OAuth status label"
+  },
+  "oauthStatusDesc": {
+    "message": "OAuth client must be configured to use Google Calendar API.",
+    "description": "OAuth status description"
+  },
+  "checkingOAuth": {
+    "message": "Checking OAuth settings...",
+    "description": "Checking OAuth status message"
+  },
+  "authenticateGoogle": {
+    "message": "Authenticate Google Account",
+    "description": "Authenticate Google button"
+  },
+  "authenticating": {
+    "message": "Authenticating...",
+    "description": "Authenticating state"
+  },
+  "revokeAuth": {
+    "message": "Revoke Authentication",
+    "description": "Revoke authentication button"
+  },
+  "revoking": {
+    "message": "Revoking...",
+    "description": "Revoking state"
+  },
+  "userGuide": {
+    "message": "User Guide",
+    "description": "User guide section title"
+  },
+  "editSchedule": {
+    "message": "Edit Schedule",
+    "description": "Edit schedule page title"
+  },
+  "analyzingSchedule": {
+    "message": "Analyzing schedule information...",
+    "description": "Analyzing schedule message"
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "Cancel button"
+  },
+  "save": {
+    "message": "Save",
+    "description": "Save button"
+  },
+  "saving": {
+    "message": "Saving...",
+    "description": "Saving state"
+  },
+  "basicInformation": {
+    "message": "Basic Information",
+    "description": "Basic information section title"
+  },
+  "eventTitle": {
+    "message": "Event Title *",
+    "description": "Event title label"
+  },
+  "eventTitlePlaceholder": {
+    "message": "Enter event title",
+    "description": "Event title placeholder"
+  },
+  "description": {
+    "message": "Description",
+    "description": "Description label"
+  },
+  "descriptionPlaceholder": {
+    "message": "Enter description for the event",
+    "description": "Description placeholder"
+  },
+  "dateAndTime": {
+    "message": "Date & Time",
+    "description": "Date and time section title"
+  },
+  "allDay": {
+    "message": "All Day",
+    "description": "All day checkbox label"
+  },
+  "start": {
+    "message": "Start",
+    "description": "Start time label"
+  },
+  "end": {
+    "message": "End",
+    "description": "End time label"
+  },
+  "recurrence": {
+    "message": "Recurrence",
+    "description": "Recurrence label"
+  },
+  "noRecurrence": {
+    "message": "No Recurrence",
+    "description": "No recurrence option"
+  },
+  "daily": {
+    "message": "Daily",
+    "description": "Daily recurrence"
+  },
+  "weekly": {
+    "message": "Weekly",
+    "description": "Weekly recurrence"
+  },
+  "monthly": {
+    "message": "Monthly",
+    "description": "Monthly recurrence"
+  },
+  "yearly": {
+    "message": "Yearly",
+    "description": "Yearly recurrence"
+  },
+  "locationAndAttendees": {
+    "message": "Location & Attendees",
+    "description": "Location and attendees section title"
+  },
+  "locationPlaceholder": {
+    "message": "Enter meeting room, address, online link, etc.",
+    "description": "Location placeholder"
+  },
+  "attendees": {
+    "message": "Attendees",
+    "description": "Attendees label"
+  },
+  "attendeePlaceholder": {
+    "message": "Enter email address and press Enter",
+    "description": "Attendee input placeholder"
+  },
+  "notificationSettings": {
+    "message": "Notification Settings",
+    "description": "Notification settings section title"
+  },
+  "reminder": {
+    "message": "Reminder",
+    "description": "Reminder label"
+  },
+  "noReminder": {
+    "message": "No Reminder",
+    "description": "No reminder option"
+  },
+  "minutesBefore": {
+    "message": "$minutes$ minutes before",
+    "description": "Reminder minutes before",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "oneHourBefore": {
+    "message": "1 hour before",
+    "description": "One hour before reminder"
+  },
+  "oneDayBefore": {
+    "message": "1 day before",
+    "description": "One day before reminder"
+  },
+  "goToCalendar": {
+    "message": "Go to Calendar",
+    "description": "Go to calendar button"
+  },
+  "enterEventTitle": {
+    "message": "Please enter event title.",
+    "description": "Error message for missing title"
+  },
+  "enterStartEndTime": {
+    "message": "Please enter start time and end time.",
+    "description": "Error message for missing time"
+  },
+  "endTimeAfterStart": {
+    "message": "End time must be later than start time.",
+    "description": "Error message for invalid time range"
+  },
+  "enterValidEmail": {
+    "message": "Please enter a valid email address.",
+    "description": "Error message for invalid email"
+  },
+  "errorSavingSchedule": {
+    "message": "An error occurred while saving the schedule.",
+    "description": "Error message for save failure"
+  },
+  "noTitle": {
+    "message": "No Title",
+    "description": "No title placeholder"
+  },
+  "timeTBD": {
+    "message": "Time TBD",
+    "description": "Time to be determined"
+  },
+  "apiGuideGeminiStep1": {
+    "message": "Visit <a href=\"https://aistudio.google.com/\" target=\"_blank\">Google AI Studio</a>",
+    "description": "Gemini API guide step 1"
+  },
+  "apiGuideGeminiStep2": {
+    "message": "Sign in with your Google account",
+    "description": "Gemini API guide step 2"
+  },
+  "apiGuideGeminiStep3": {
+    "message": "Click the \"Get API key\" button",
+    "description": "Gemini API guide step 3"
+  },
+  "apiGuideGeminiStep4": {
+    "message": "Create a new API key or select an existing one",
+    "description": "Gemini API guide step 4"
+  },
+  "apiGuideGeminiStep5": {
+    "message": "Paste the generated API key into the input field above",
+    "description": "Gemini API guide step 5"
+  },
+  "apiGuideClaudeStep1": {
+    "message": "Visit <a href=\"https://console.anthropic.com/\" target=\"_blank\">Anthropic Console</a>",
+    "description": "Claude API guide step 1"
+  },
+  "apiGuideClaudeStep2": {
+    "message": "Create an account and sign in",
+    "description": "Claude API guide step 2"
+  },
+  "apiGuideClaudeStep3": {
+    "message": "Navigate to the \"API Keys\" section",
+    "description": "Claude API guide step 3"
+  },
+  "apiGuideClaudeStep4": {
+    "message": "Click \"Create Key\" to generate a new API key",
+    "description": "Claude API guide step 4"
+  },
+  "apiGuideClaudeStep5": {
+    "message": "Paste the generated API key into the input field above",
+    "description": "Claude API guide step 5"
+  },
+  "apiGuideChatGPTStep1": {
+    "message": "Visit <a href=\"https://platform.openai.com/\" target=\"_blank\">OpenAI Platform</a>",
+    "description": "ChatGPT API guide step 1"
+  },
+  "apiGuideChatGPTStep2": {
+    "message": "Create an account and sign in",
+    "description": "ChatGPT API guide step 2"
+  },
+  "apiGuideChatGPTStep3": {
+    "message": "Navigate to the \"API Keys\" section",
+    "description": "ChatGPT API guide step 3"
+  },
+  "apiGuideChatGPTStep4": {
+    "message": "Click \"Create new secret key\" button",
+    "description": "ChatGPT API guide step 4"
+  },
+  "apiGuideChatGPTStep5": {
+    "message": "Paste the generated API key into the input field above",
+    "description": "ChatGPT API guide step 5"
+  },
+  "usageGuideTitle": {
+    "message": "How to Use ContextClipCalendar",
+    "description": "Usage guide title"
+  },
+  "usageGuideStep1": {
+    "message": "<strong>Copy Text:</strong> Copy the text you want to register as a schedule to the clipboard",
+    "description": "Usage guide step 1"
+  },
+  "usageGuideStep2": {
+    "message": "<strong>Open Extension:</strong> Click the ContextClipCalendar icon in the browser toolbar",
+    "description": "Usage guide step 2"
+  },
+  "usageGuideStep3": {
+    "message": "<strong>Auto Load:</strong> The text from the clipboard will be automatically loaded",
+    "description": "Usage guide step 3"
+  },
+  "usageGuideStep4": {
+    "message": "<strong>Register Schedule:</strong> Click the \"Add to Calendar\" button to register it to Google Calendar",
+    "description": "Usage guide step 4"
+  },
+  "usageGuideStep5": {
+    "message": "<strong>Context Menu:</strong> You can also use it by selecting text on a webpage and right-clicking",
+    "description": "Usage guide step 5"
+  },
+  "aiFeaturesTitle": {
+    "message": "What AI Automatically Processes",
+    "description": "AI features title"
+  },
+  "aiFeature1": {
+    "message": "<strong>Title Extraction:</strong> Automatically generates an appropriate event title from the text",
+    "description": "AI feature 1"
+  },
+  "aiFeature2": {
+    "message": "<strong>Date/Time Analysis:</strong> Recognizes natural language time expressions like \"tomorrow at 3 PM\", \"next Monday\", etc.",
+    "description": "AI feature 2"
+  },
+  "aiFeature3": {
+    "message": "<strong>Location Information:</strong> Extracts location information such as meeting rooms, addresses, online platforms, etc.",
+    "description": "AI feature 3"
+  },
+  "aiFeature4": {
+    "message": "<strong>Attendee Information:</strong> Creates a list of attendees based on email addresses",
+    "description": "AI feature 4"
+  },
+  "aiFeature5": {
+    "message": "<strong>Content Summary:</strong> Summarizes long text appropriately for event descriptions",
+    "description": "AI feature 5"
+  }
+}
+

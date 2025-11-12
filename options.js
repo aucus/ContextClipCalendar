@@ -1,8 +1,33 @@
 // ContextClipCalendar Options Script
 document.addEventListener('DOMContentLoaded', () => {
     console.log('ContextClipCalendar options page loaded');
+    // Apply i18n translations
+    applyI18n();
     initializeOptionsPage();
 });
+
+// Apply i18n translations to elements with data-i18n attribute
+function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        const message = chrome.i18n.getMessage(key);
+        if (message) {
+            // Handle title element
+            if (element.tagName === 'TITLE') {
+                document.title = message;
+            } else if (message.includes('<a ') || message.includes('<strong>')) {
+                // For elements with HTML content (links, bold text), use innerHTML
+                element.innerHTML = message;
+            } else if (element.innerHTML.includes('<br>') || element.innerHTML.includes('<strong>') || element.innerHTML.includes('<small>')) {
+                // For elements with HTML content, we need to preserve structure
+                // This is handled by individual elements
+                element.textContent = message;
+            } else {
+                element.textContent = message;
+            }
+        }
+    });
+}
 
 // DOM elements
 const geminiApiKeyInput = document.getElementById('geminiApiKey');
@@ -51,10 +76,10 @@ async function authenticateGoogle() {
         authenticateGoogleBtn.disabled = true;
         authenticateGoogleBtn.innerHTML = `
             <div class="spinner"></div>
-            인증 중...
+            ${chrome.i18n.getMessage('authenticating')}
         `;
         
-        showGoogleStatus('warning', 'Google 계정 인증을 진행하고 있습니다...');
+        showGoogleStatus('warning', chrome.i18n.getMessage('authenticating'));
         
         const response = await chrome.runtime.sendMessage({
             action: 'authenticateGoogle'
@@ -63,16 +88,16 @@ async function authenticateGoogle() {
         console.log('Google authentication response:', response);
         
         if (response.success) {
-            showGoogleStatus('success', '인증 완료! Google Calendar 연동이 활성화되었습니다');
+            showGoogleStatus('success', chrome.i18n.getMessage('googleCalendarIntegration') + ' is enabled');
             authenticateGoogleBtn.classList.add('hidden');
             revokeGoogleBtn.classList.remove('hidden');
         } else {
-            showGoogleStatus('error', response.error || '인증에 실패했습니다');
+            showGoogleStatus('error', response.error || chrome.i18n.getMessage('authenticating') + ' failed');
         }
         
     } catch (error) {
         console.error('Google authentication error:', error);
-        showGoogleStatus('error', '인증 중 오류가 발생했습니다');
+        showGoogleStatus('error', 'An error occurred during authentication');
     } finally {
         // Restore button
         authenticateGoogleBtn.disabled = false;
@@ -80,7 +105,7 @@ async function authenticateGoogle() {
             <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
             </svg>
-            Google 계정 인증
+            ${chrome.i18n.getMessage('authenticateGoogle')}
         `;
     }
 }
@@ -98,10 +123,10 @@ async function revokeGoogleAuth() {
         revokeGoogleBtn.disabled = true;
         revokeGoogleBtn.innerHTML = `
             <div class="spinner"></div>
-            해제 중...
+            ${chrome.i18n.getMessage('revoking')}
         `;
         
-        showGoogleStatus('warning', '인증을 해제하고 있습니다...');
+        showGoogleStatus('warning', chrome.i18n.getMessage('revoking'));
         
         const response = await chrome.runtime.sendMessage({
             action: 'revokeGoogleAuth'
@@ -110,16 +135,16 @@ async function revokeGoogleAuth() {
         console.log('Google revoke response:', response);
         
         if (response.success) {
-            showGoogleStatus('error', '인증이 해제되었습니다');
+            showGoogleStatus('error', 'Authentication revoked');
             authenticateGoogleBtn.classList.remove('hidden');
             revokeGoogleBtn.classList.add('hidden');
         } else {
-            showGoogleStatus('error', response.error || '인증 해제에 실패했습니다');
+            showGoogleStatus('error', response.error || 'Failed to revoke authentication');
         }
         
     } catch (error) {
         console.error('Google revoke error:', error);
-        showGoogleStatus('error', '인증 해제 중 오류가 발생했습니다');
+        showGoogleStatus('error', 'An error occurred while revoking authentication');
     } finally {
         // Restore button
         revokeGoogleBtn.disabled = false;
@@ -127,7 +152,7 @@ async function revokeGoogleAuth() {
             <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636 5.636 18.364"></path>
             </svg>
-            인증 해제
+            ${chrome.i18n.getMessage('revokeAuth')}
         `;
     }
 }
@@ -163,7 +188,7 @@ async function loadSettings() {
         // Load API keys
         if (settings.geminiApiKey) {
             geminiApiKeyInput.value = settings.geminiApiKey;
-            showGeminiStatus('success', '저장된 API 키가 있습니다');
+            showGeminiStatus('success', 'Saved API key found');
         }
         if (settings.claudeApiKey) {
             claudeApiKeyInput.value = settings.claudeApiKey;
@@ -176,7 +201,7 @@ async function loadSettings() {
         
     } catch (error) {
         console.error('Settings loading error:', error);
-        showGeminiStatus('error', '설정을 불러오는 중 오류가 발생했습니다');
+        showGeminiStatus('error', 'Error loading settings');
     }
 }
 
@@ -224,7 +249,7 @@ async function testGeminiAPI() {
     const apiKey = geminiApiKeyInput.value.trim();
     
     if (!apiKey) {
-        showGeminiStatus('error', 'API 키를 입력해주세요');
+        showGeminiStatus('error', 'Please enter API key');
         return;
     }
     
@@ -233,10 +258,10 @@ async function testGeminiAPI() {
         testGeminiBtn.disabled = true;
         testGeminiBtn.innerHTML = `
             <div class="spinner"></div>
-            테스트 중...
+            ${chrome.i18n.getMessage('test')}...
         `;
         
-        showGeminiStatus('warning', 'API 키를 테스트하고 있습니다...');
+        showGeminiStatus('warning', 'Testing API key...');
         
         // Test API key through background script
         const response = await chrome.runtime.sendMessage({
@@ -247,14 +272,14 @@ async function testGeminiAPI() {
         console.log('Gemini API test response:', response);
         
         if (response.success) {
-            showGeminiStatus('success', response.message || 'API 키가 유효합니다');
+            showGeminiStatus('success', response.message || 'API key is valid');
         } else {
-            showGeminiStatus('error', response.error || 'API 키 테스트에 실패했습니다');
+            showGeminiStatus('error', response.error || 'API key test failed');
         }
         
     } catch (error) {
         console.error('Gemini API test error:', error);
-        showGeminiStatus('error', '테스트 중 오류가 발생했습니다');
+        showGeminiStatus('error', 'Error during test');
     } finally {
         // Restore button
         testGeminiBtn.disabled = false;
@@ -272,7 +297,7 @@ async function saveGeminiSettings() {
     const apiKey = geminiApiKeyInput.value.trim();
     
     if (!apiKey) {
-        showGeminiStatus('error', 'API 키를 입력해주세요');
+        showGeminiStatus('error', 'Please enter API key');
         return;
     }
     
@@ -374,7 +399,7 @@ async function checkGoogleAuthStatus() {
         
         if (googleAccessToken) {
             // We have a stored token, show success status
-            showGoogleStatus('success', 'Google Calendar 연동이 활성화되었습니다');
+            showGoogleStatus('success', chrome.i18n.getMessage('googleCalendarIntegration') + ' is enabled');
             
             // Hide OAuth buttons since we're already authenticated
             if (authenticateGoogleBtn) authenticateGoogleBtn.classList.add('hidden');
@@ -394,7 +419,7 @@ async function checkGoogleAuthStatus() {
         
     } catch (error) {
         console.error('Google auth status check error:', error);
-        showGoogleStatus('error', 'OAuth 상태 확인 중 오류가 발생했습니다');
+        showGoogleStatus('error', 'Error checking OAuth status');
     }
 }
 
@@ -454,12 +479,12 @@ async function testClaudeAPI() {
     const apiKey = claudeApiKeyInput.value.trim();
     
     if (!apiKey) {
-        showClaudeStatus('error', 'API 키를 입력해주세요');
+        showClaudeStatus('error', 'Please enter API key');
         return;
     }
     
     try {
-        showClaudeStatus('warning', 'API 키를 테스트하고 있습니다...');
+        showClaudeStatus('warning', 'Testing API key...');
         testClaudeBtn.disabled = true;
         
         const response = await chrome.runtime.sendMessage({
@@ -468,14 +493,14 @@ async function testClaudeAPI() {
         });
         
         if (response.success) {
-            showClaudeStatus('success', 'Claude API 키가 유효합니다!');
+            showClaudeStatus('success', 'Claude API key is valid!');
         } else {
-            showClaudeStatus('error', response.error || 'API 키 테스트에 실패했습니다');
+            showClaudeStatus('error', response.error || 'API key test failed');
         }
         
     } catch (error) {
         console.error('Claude API test error:', error);
-        showClaudeStatus('error', 'API 키 테스트 중 오류가 발생했습니다');
+        showClaudeStatus('error', 'Error during test');
     } finally {
         testClaudeBtn.disabled = false;
     }
@@ -486,12 +511,12 @@ async function testChatgptAPI() {
     const apiKey = chatgptApiKeyInput.value.trim();
     
     if (!apiKey) {
-        showChatgptStatus('error', 'API 키를 입력해주세요');
+        showChatgptStatus('error', 'Please enter API key');
         return;
     }
     
     try {
-        showChatgptStatus('warning', 'API 키를 테스트하고 있습니다...');
+        showChatgptStatus('warning', 'Testing API key...');
         testChatgptBtn.disabled = true;
         
         const response = await chrome.runtime.sendMessage({
@@ -500,14 +525,14 @@ async function testChatgptAPI() {
         });
         
         if (response.success) {
-            showChatgptStatus('success', 'ChatGPT API 키가 유효합니다!');
+            showChatgptStatus('success', 'ChatGPT API key is valid!');
         } else {
-            showChatgptStatus('error', response.error || 'API 키 테스트에 실패했습니다');
+            showChatgptStatus('error', response.error || 'API key test failed');
         }
         
     } catch (error) {
         console.error('ChatGPT API test error:', error);
-        showChatgptStatus('error', 'API 키 테스트 중 오류가 발생했습니다');
+        showChatgptStatus('error', 'Error during test');
     } finally {
         testChatgptBtn.disabled = false;
     }
@@ -531,13 +556,13 @@ async function saveAllAPIKeys() {
         await chrome.storage.local.set(settings);
         
         // Show success message
-        showGeminiStatus('success', '모든 설정이 저장되었습니다!');
+        showGeminiStatus('success', 'All settings saved!');
         
         console.log('Settings saved:', settings);
         
     } catch (error) {
         console.error('Save settings error:', error);
-        showGeminiStatus('error', '설정 저장 중 오류가 발생했습니다');
+        showGeminiStatus('error', 'Error saving settings');
     }
 }
 

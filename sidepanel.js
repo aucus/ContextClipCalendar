@@ -34,9 +34,79 @@ let isSaving = false; // Prevent multiple saves
 // Initialize side panel
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('ContextClipCalendar side panel initialization');
+    // Apply i18n translations
+    applyI18n();
     await initializeSidePanel();
     setupEventListeners();
 });
+
+// Apply i18n translations to elements with data-i18n attribute
+function applyI18n() {
+    // Translate title
+    const titleElement = document.querySelector('title[data-i18n]');
+    if (titleElement) {
+        const key = titleElement.getAttribute('data-i18n');
+        document.title = chrome.i18n.getMessage(key) + ' - ContextClipCalendar';
+    }
+    
+    // Translate elements with data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        const message = chrome.i18n.getMessage(key);
+        if (message) {
+            if (element.tagName === 'TITLE') {
+                // Already handled above
+            } else {
+                element.textContent = message;
+            }
+        }
+    });
+    
+    // Translate placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        const message = chrome.i18n.getMessage(key);
+        if (message) {
+            element.placeholder = message;
+        }
+    });
+    
+    // Translate reminder options with minutes
+    document.querySelectorAll('[data-i18n-minutes]').forEach(element => {
+        const minutes = element.getAttribute('data-i18n-minutes');
+        const message = chrome.i18n.getMessage('minutesBefore', [minutes]);
+        if (message) {
+            element.textContent = message;
+        }
+    });
+    
+    // Translate select options
+    const recurrenceSelect = document.getElementById('recurrence');
+    if (recurrenceSelect) {
+        Array.from(recurrenceSelect.options).forEach(option => {
+            if (option.hasAttribute('data-i18n')) {
+                const key = option.getAttribute('data-i18n');
+                const message = chrome.i18n.getMessage(key);
+                if (message) {
+                    option.textContent = message;
+                }
+            }
+        });
+    }
+    
+    const reminderSelect = document.getElementById('reminder');
+    if (reminderSelect) {
+        Array.from(reminderSelect.options).forEach(option => {
+            if (option.hasAttribute('data-i18n')) {
+                const key = option.getAttribute('data-i18n');
+                const message = chrome.i18n.getMessage(key);
+                if (message) {
+                    option.textContent = message;
+                }
+            }
+        });
+    }
+}
 
 // Initialize side panel
 async function initializeSidePanel() {
@@ -49,7 +119,7 @@ async function initializeSidePanel() {
         
     } catch (error) {
         console.error('Side panel initialization error:', error);
-        showError('사이드 패널 초기화 중 오류가 발생했습니다.');
+        showError('An error occurred while initializing the side panel.');
     }
 }
 
@@ -188,7 +258,7 @@ function showMultiEventTabs(events) {
         const tab = document.createElement('div');
         tab.className = `event-tab ${index === 0 ? 'active' : ''}`;
         tab.innerHTML = `
-            <div class="event-tab-title">${event.title || '제목 없음'}</div>
+            <div class="event-tab-title">${event.title || chrome.i18n.getMessage('noTitle')}</div>
             <div class="event-tab-time">${formatEventTime(event)}</div>
         `;
         
@@ -290,7 +360,7 @@ function handleAttendeeKeypress(event) {
             addAttendee(email);
             attendeeInput.value = '';
         } else {
-            showError('유효한 이메일 주소를 입력해주세요.');
+            showError(chrome.i18n.getMessage('enterValidEmail'));
         }
     }
 }
@@ -346,12 +416,12 @@ async function handleSave() {
         
         // Validate form
         if (!eventTitle.value.trim()) {
-            showError('일정 제목을 입력해주세요.');
+            showError(chrome.i18n.getMessage('enterEventTitle'));
             return;
         }
         
         if (!startDateTime.value || !endDateTime.value) {
-            showError('시작 시간과 종료 시간을 입력해주세요.');
+            showError(chrome.i18n.getMessage('enterStartEndTime'));
             return;
         }
         
@@ -359,7 +429,7 @@ async function handleSave() {
         const endDate = new Date(endDateTime.value);
         
         if (endDate <= startDate) {
-            showError('종료 시간은 시작 시간보다 늦어야 합니다.');
+            showError(chrome.i18n.getMessage('endTimeAfterStart'));
             return;
         }
         
@@ -380,7 +450,7 @@ async function handleSave() {
         
         // Show loading
         saveBtn.disabled = true;
-        saveBtn.textContent = '저장 중...';
+        saveBtn.textContent = chrome.i18n.getMessage('saving');
         
         // Send to background script for calendar creation
         const response = await chrome.runtime.sendMessage({
@@ -392,7 +462,7 @@ async function handleSave() {
             // Show success message in statusMessage area
             const statusMessage = document.getElementById('statusMessage');
             if (statusMessage) {
-                statusMessage.innerHTML = '<div style="margin-bottom: 1rem; color: #166534; font-weight: 500;">일정이 성공적으로 등록되었습니다!</div>';
+                statusMessage.innerHTML = '<div style="margin-bottom: 1rem; color: #166534; font-weight: 500;">' + chrome.i18n.getMessage('scheduleSuccessfullyRegistered') + '</div>';
                 statusMessage.classList.remove('hidden');
                 statusMessage.classList.add('success');
             }
@@ -423,7 +493,7 @@ async function handleSave() {
                 // Create new calendar button
                 const newCalendarBtn = document.createElement('button');
                 newCalendarBtn.id = 'saveBtn'; // Keep same ID for consistency
-                newCalendarBtn.textContent = '📅 캘린더 이동';
+                newCalendarBtn.textContent = '📅 ' + chrome.i18n.getMessage('goToCalendar');
                 newCalendarBtn.className = 'btn btn-primary';
                 newCalendarBtn.style.cssText = `
                     background: linear-gradient(135deg, #4285f4, #34a853);
@@ -483,7 +553,7 @@ async function handleSave() {
             }
             
             if (cancelBtn) {
-                cancelBtn.textContent = '닫기';
+                cancelBtn.textContent = chrome.i18n.getMessage('close');
                 cancelBtn.onclick = () => {
                     closeSidePanel();
                 };
@@ -498,17 +568,17 @@ async function handleSave() {
             }
             
         } else {
-            showError(response.error || '일정 등록 중 오류가 발생했습니다.');
+            showError(response.error || chrome.i18n.getMessage('errorRegisteringSchedule'));
         }
         
     } catch (error) {
         console.error('Save error:', error);
-        showError('일정 저장 중 오류가 발생했습니다.');
+        showError(chrome.i18n.getMessage('errorSavingSchedule'));
     } finally {
         isSaving = false; // Reset saving flag
         console.log('Setting isSaving to false');
         saveBtn.disabled = false;
-        saveBtn.textContent = '저장';
+        saveBtn.textContent = chrome.i18n.getMessage('save');
     }
 }
 
@@ -667,17 +737,19 @@ function formatDateTimeLocal(date) {
 }
 
 function formatEventTime(event) {
-    if (!event.startDate) return '시간 미정';
+    if (!event.startDate) return chrome.i18n.getMessage('timeTBD');
     
     const startDate = new Date(event.startDate);
     const endDate = new Date(event.endDate);
     
-    const startTime = startDate.toLocaleTimeString('ko-KR', {
+    // Use browser locale for time formatting
+    const locale = navigator.language || 'en-US';
+    const startTime = startDate.toLocaleTimeString(locale, {
         hour: '2-digit',
         minute: '2-digit'
     });
     
-    const endTime = endDate.toLocaleTimeString('ko-KR', {
+    const endTime = endDate.toLocaleTimeString(locale, {
         hour: '2-digit',
         minute: '2-digit'
     });

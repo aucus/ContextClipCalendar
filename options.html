@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContextClipCalendar 설정</title>
+    <title data-i18n="settingsPageTitle">ContextClipCalendar Settings</title>
     <style>
         * {
             margin: 0;
@@ -391,43 +391,43 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>
-                📅 ContextClipCalendar 설정
+            <h1 data-i18n="settingsPageTitle">
+                📅 ContextClipCalendar Settings
             </h1>
-            <p>AI 기반 스마트 일정 등록을 위한 설정을 관리하세요</p>
+            <p data-i18n="settingsPageDesc">Manage settings for AI-powered smart calendar registration</p>
         </div>
 
         <!-- AI 모델 선택 -->
         <div class="card">
-            <h2>
-                🤖 AI 모델 선택
+            <h2 data-i18n="aiModelSelection">
+                🤖 AI Model Selection
             </h2>
             
             <div class="form-group">
-                <label>기본 AI 모델</label>
-                <div class="help-text">
-                    일정 정보 추출에 사용할 AI 모델을 선택하세요.
+                <label data-i18n="defaultAIModel">Default AI Model</label>
+                <div class="help-text" data-i18n="selectAIModelDesc">
+                    Select the AI model to use for schedule information extraction.
                 </div>
                 <div class="radio-group">
                     <label class="radio-label">
                         <input type="radio" name="selectedLLM" value="gemini" checked>
                         <span class="radio-text">
-                            <strong>Gemini (Google)</strong>
-                            <small>무료, 빠른 응답</small>
+                            <strong data-i18n="gemini">Gemini (Google)</strong>
+                            <small data-i18n="geminiDesc">Free, fast response</small>
                         </span>
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="selectedLLM" value="claude">
                         <span class="radio-text">
-                            <strong>Claude (Anthropic)</strong>
-                            <small>고품질 분석</small>
+                            <strong data-i18n="claude">Claude (Anthropic)</strong>
+                            <small data-i18n="claudeDesc">High quality analysis</small>
                         </span>
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="selectedLLM" value="chatgpt">
                         <span class="radio-text">
-                            <strong>ChatGPT (OpenAI)</strong>
-                            <small>다양한 모델</small>
+                            <strong data-i18n="chatgpt">ChatGPT (OpenAI)</strong>
+                            <small data-i18n="chatgptDesc">Various models</small>
                         </span>
                     </label>
                 </div>
@@ -436,15 +436,15 @@
 
         <!-- API 키 설정 -->
         <div class="card">
-            <h2>
-                🔑 API 키 설정
+            <h2 data-i18n="apiKeySettings">
+                🔑 API Key Settings
             </h2>
             
             <!-- Gemini API Key -->
             <div class="form-group" id="geminiApiGroup">
-                <label for="geminiApiKey">Gemini API 키</label>
-                <div class="help-text">
-                    Google AI Studio에서 발급받은 Gemini API 키를 입력하세요.
+                <label for="geminiApiKey" data-i18n="geminiApiKey">Gemini API Key</label>
+                <div class="help-text" data-i18n="geminiApiKeyDesc">
+                    Enter the Gemini API key issued from Google AI Studio.
                 </div>
                 <input type="password" id="geminiApiKey" placeholder="AIzaSy...">
                 <div id="geminiStatus" class="status-indicator hidden">
@@ -456,16 +456,16 @@
                         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        테스트
+                        <span data-i18n="test">Test</span>
                     </button>
                 </div>
             </div>
 
             <!-- Claude API Key -->
             <div class="form-group hidden" id="claudeApiGroup">
-                <label for="claudeApiKey">Claude API 키</label>
-                <div class="help-text">
-                    Anthropic Console에서 발급받은 Claude API 키를 입력하세요.
+                <label for="claudeApiKey" data-i18n="claudeApiKey">Claude API Key</label>
+                <div class="help-text" data-i18n="claudeApiKeyDesc">
+                    Enter the Claude API key issued from Anthropic Console.
                 </div>
                 <input type="password" id="claudeApiKey" placeholder="sk-ant-...">
                 <div id="claudeStatus" class="status-indicator hidden">
@@ -477,16 +477,16 @@
                         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        테스트
+                        <span data-i18n="test">Test</span>
                     </button>
                 </div>
             </div>
 
             <!-- ChatGPT API Key -->
             <div class="form-group hidden" id="chatgptApiGroup">
-                <label for="chatgptApiKey">ChatGPT API 키</label>
-                <div class="help-text">
-                    OpenAI Platform에서 발급받은 API 키를 입력하세요.
+                <label for="chatgptApiKey" data-i18n="chatgptApiKey">ChatGPT API Key</label>
+                <div class="help-text" data-i18n="chatgptApiKeyDesc">
+                    Enter the API key issued from OpenAI Platform.
                 </div>
                 <input type="password" id="chatgptApiKey" placeholder="sk-...">
                 <div id="chatgptStatus" class="status-indicator hidden">
@@ -498,7 +498,7 @@
                         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        테스트
+                        <span data-i18n="test">Test</span>
                     </button>
                 </div>
             </div>
@@ -508,14 +508,14 @@
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
                     </svg>
-                    API 키 저장
+                    <span data-i18n="saveApiKeys">Save API Keys</span>
                 </button>
             </div>
 
             <!-- API 키 발급 가이드 -->
             <div class="guide">
-                <h3>
-                    💡 API 키 발급 방법
+                <h3 data-i18n="howToGetApiKeys">
+                    💡 How to Get API Keys
                 </h3>
                 <div class="guide-tabs">
                     <button class="guide-tab active" data-tab="gemini">Gemini</button>
@@ -525,31 +525,31 @@
                 
                 <div class="guide-content" id="geminiGuide">
                     <ol>
-                        <li><a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>에 접속하세요</li>
-                        <li>Google 계정으로 로그인하세요</li>
-                        <li>"Get API key" 버튼을 클릭하세요</li>
-                        <li>새 API 키를 생성하거나 기존 키를 선택하세요</li>
-                        <li>생성된 API 키를 위 입력란에 붙여넣으세요</li>
+                        <li data-i18n="apiGuideGeminiStep1"></li>
+                        <li data-i18n="apiGuideGeminiStep2"></li>
+                        <li data-i18n="apiGuideGeminiStep3"></li>
+                        <li data-i18n="apiGuideGeminiStep4"></li>
+                        <li data-i18n="apiGuideGeminiStep5"></li>
                     </ol>
                 </div>
                 
                 <div class="guide-content hidden" id="claudeGuide">
                     <ol>
-                        <li><a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a>에 접속하세요</li>
-                        <li>계정을 생성하고 로그인하세요</li>
-                        <li>"API Keys" 섹션으로 이동하세요</li>
-                        <li>"Create Key" 버튼을 클릭하여 새 API 키를 생성하세요</li>
-                        <li>생성된 API 키를 위 입력란에 붙여넣으세요</li>
+                        <li data-i18n="apiGuideClaudeStep1"></li>
+                        <li data-i18n="apiGuideClaudeStep2"></li>
+                        <li data-i18n="apiGuideClaudeStep3"></li>
+                        <li data-i18n="apiGuideClaudeStep4"></li>
+                        <li data-i18n="apiGuideClaudeStep5"></li>
                     </ol>
                 </div>
                 
                 <div class="guide-content hidden" id="chatgptGuide">
                     <ol>
-                        <li><a href="https://platform.openai.com/" target="_blank">OpenAI Platform</a>에 접속하세요</li>
-                        <li>계정을 생성하고 로그인하세요</li>
-                        <li>"API Keys" 섹션으로 이동하세요</li>
-                        <li>"Create new secret key" 버튼을 클릭하세요</li>
-                        <li>생성된 API 키를 위 입력란에 붙여넣으세요</li>
+                        <li data-i18n="apiGuideChatGPTStep1"></li>
+                        <li data-i18n="apiGuideChatGPTStep2"></li>
+                        <li data-i18n="apiGuideChatGPTStep3"></li>
+                        <li data-i18n="apiGuideChatGPTStep4"></li>
+                        <li data-i18n="apiGuideChatGPTStep5"></li>
                     </ol>
                 </div>
             </div>
@@ -557,18 +557,18 @@
 
         <!-- Google Calendar 인증 -->
         <div class="card">
-            <h2>
-                🗓️ Google Calendar 연동
+            <h2 data-i18n="googleCalendarIntegration">
+                🗓️ Google Calendar Integration
             </h2>
             
             <div class="form-group">
-                <label>OAuth 설정 상태</label>
-                <div class="help-text">
-                    Google Calendar API를 사용하려면 먼저 OAuth 클라이언트를 설정해야 합니다.
+                <label data-i18n="oauthStatus">OAuth Settings Status</label>
+                <div class="help-text" data-i18n="oauthStatusDesc">
+                    OAuth client must be configured to use Google Calendar API.
                 </div>
                 <div id="googleStatus" class="status-indicator status-warning">
                     <div class="spinner"></div>
-                    <span>OAuth 설정 확인 중...</span>
+                    <span data-i18n="checkingOAuth">Checking OAuth settings...</span>
                 </div>
             </div>
 
@@ -577,13 +577,13 @@
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                     </svg>
-                    Google 계정 인증
+                    <span data-i18n="authenticateGoogle">Authenticate Google Account</span>
                 </button>
                 <button id="revokeGoogleBtn" class="btn btn-danger hidden">
                     <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636 5.636 18.364"></path>
                     </svg>
-                    인증 해제
+                    <span data-i18n="revokeAuth">Revoke Authentication</span>
                 </button>
             </div>
 
@@ -592,33 +592,33 @@
 
         <!-- 사용 가이드 -->
         <div class="card">
-            <h2>
-                📖 사용 가이드
+            <h2 data-i18n="userGuide">
+                📖 User Guide
             </h2>
             
             <div class="guide">
-                <h3>
-                    🚀 ContextClipCalendar 사용법
+                <h3 data-i18n="usageGuideTitle">
+                    🚀 How to Use ContextClipCalendar
                 </h3>
                 <ol>
-                    <li><strong>텍스트 복사:</strong> 일정으로 등록할 텍스트를 클립보드에 복사하세요</li>
-                    <li><strong>확장 프로그램 실행:</strong> 브라우저 툴바에서 ContextClipCalendar 아이콘을 클릭하세요</li>
-                    <li><strong>자동 로드:</strong> 클립보드의 텍스트가 자동으로 로드됩니다</li>
-                    <li><strong>일정 등록:</strong> "일정 등록" 버튼을 클릭하여 Google Calendar에 등록하세요</li>
-                    <li><strong>컨텍스트 메뉴:</strong> 웹페이지에서 텍스트를 선택하고 우클릭으로도 이용 가능합니다</li>
+                    <li data-i18n="usageGuideStep1"></li>
+                    <li data-i18n="usageGuideStep2"></li>
+                    <li data-i18n="usageGuideStep3"></li>
+                    <li data-i18n="usageGuideStep4"></li>
+                    <li data-i18n="usageGuideStep5"></li>
                 </ol>
             </div>
 
             <div class="guide" style="margin-top: 1rem; background: #f0fdf4; border-color: #bbf7d0;">
-                <h3 style="color: #166534;">
-                    ✨ AI가 자동으로 처리하는 내용
+                <h3 style="color: #166534;" data-i18n="aiFeaturesTitle">
+                    ✨ What AI Automatically Processes
                 </h3>
                 <ol style="color: #15803d;">
-                    <li><strong>일정 제목 추출:</strong> 텍스트에서 적절한 일정 제목을 자동 생성</li>
-                    <li><strong>날짜/시간 분석:</strong> "내일 오후 3시", "다음주 월요일" 등 자연어 시간 표현 인식</li>
-                    <li><strong>장소 정보:</strong> 회의실, 주소, 온라인 플랫폼 등 장소 정보 추출</li>
-                    <li><strong>참석자 정보:</strong> 이메일 주소 기반 참석자 목록 생성</li>
-                    <li><strong>내용 요약:</strong> 긴 텍스트를 일정 설명에 적합하게 요약</li>
+                    <li data-i18n="aiFeature1"></li>
+                    <li data-i18n="aiFeature2"></li>
+                    <li data-i18n="aiFeature3"></li>
+                    <li data-i18n="aiFeature4"></li>
+                    <li data-i18n="aiFeature5"></li>
                 </ol>
             </div>
         </div>

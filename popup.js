@@ -21,9 +21,27 @@ let currentTextSource = ''; // 'selection' or 'clipboard'
 // Popup initialization
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('ContextClipCalendar popup initialization');
+    // Apply i18n translations
+    applyI18n();
     await initializePopup();
     setupEventListeners();
 });
+
+// Apply i18n translations to elements with data-i18n attribute
+function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        const message = chrome.i18n.getMessage(key);
+        if (message) {
+            // Handle elements with HTML content (like <br> tags)
+            if (element.innerHTML.includes('<br>')) {
+                element.innerHTML = message.replace(/\n/g, '<br>');
+            } else {
+                element.textContent = message;
+            }
+        }
+    });
+}
 
 // Check clipboard permission
 async function checkClipboardPermission() {
@@ -89,13 +107,13 @@ function showPermissionRequiredState() {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>
             </div>
-            <h3 class="no-text-title">클립보드 접근 권한 필요</h3>
-            <p class="no-text-desc">클립보드에서 텍스트를 읽기 위해<br>권한이 필요합니다.</p>
+            <h3 class="no-text-title">${chrome.i18n.getMessage('clipboardPermissionRequired')}</h3>
+            <p class="no-text-desc">${chrome.i18n.getMessage('clipboardPermissionDesc')}</p>
             <button id="requestPermissionBtn" class="btn primary-btn">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                 </svg>
-                권한 허용
+                ${chrome.i18n.getMessage('allowPermission')}
             </button>
         </div>
     `;
@@ -127,13 +145,13 @@ async function handlePermissionRequest() {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <h3 class="no-text-title">권한 거부됨</h3>
-                <p class="no-text-desc">클립보드 접근이 거부되었습니다.<br>브라우저 설정에서 클립보드 권한을 허용해주세요.</p>
+                <h3 class="no-text-title">${chrome.i18n.getMessage('permissionDenied')}</h3>
+                <p class="no-text-desc">${chrome.i18n.getMessage('permissionDeniedDesc')}</p>
                 <button id="retryPermissionBtn" class="btn primary-btn">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
-                    다시 시도
+                    ${chrome.i18n.getMessage('retry')}
                 </button>
             </div>
         `;
@@ -174,7 +192,7 @@ function resetClipboardButton() {
             <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
-            <span>읽는 중...</span>
+            <span>${chrome.i18n.getMessage('reading')}</span>
         `;
     }
 }
@@ -187,7 +205,7 @@ function showSelectedText(text, source) {
     currentTextSource = source;
     
     selectedText.textContent = text;
-    textSource.textContent = source === 'clipboard' ? '클립보드에서 가져옴' : '선택된 텍스트';
+    textSource.textContent = source === 'clipboard' ? chrome.i18n.getMessage('fromClipboard') : chrome.i18n.getMessage('fromSelection');
     textSource.className = `text-source ${source}`;
     
     selectedTextContainer.classList.remove('hidden');
@@ -220,15 +238,15 @@ function showNoTextState() {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
             </svg>
         </div>
-        <h3 class="no-text-title">📋 클립보드에서 일정 텍스트 가져오기</h3>
-        <p class="no-text-desc">일정으로 등록할 텍스트를 복사한 후<br>아래 버튼을 클릭하여 가져오세요</p>
+        <h3 class="no-text-title">📋 ${chrome.i18n.getMessage('getScheduleFromClipboard')}</h3>
+        <p class="no-text-desc">${chrome.i18n.getMessage('copyTextToRegister').replace(/\n/g, '<br>')}</p>
         
         <!-- Clipboard text import button -->
         <button id="clipboardBtn" class="clipboard-btn">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
             </svg>
-            <span>📋 클립보드에서 가져오기</span>
+            <span>📋 ${chrome.i18n.getMessage('getFromClipboard')}</span>
         </button>
     `;
     
@@ -265,7 +283,7 @@ function showSuccessMessage(message, data = null) {
         if (data.summary) {
             detailsHTML += `
                 <div class="detail-item">
-                    <span class="detail-label">제목:</span>
+                    <span class="detail-label">${chrome.i18n.getMessage('title')}</span>
                     <span class="detail-value">${data.summary}</span>
                 </div>
             `;
@@ -273,24 +291,26 @@ function showSuccessMessage(message, data = null) {
         
         if (data.startTime) {
             const startDate = new Date(data.startTime);
-            const formattedDate = startDate.toLocaleDateString('ko-KR', {
+            // Use browser locale for date/time formatting
+            const locale = navigator.language || 'en-US';
+            const formattedDate = startDate.toLocaleDateString(locale, {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
                 weekday: 'long'
             });
-            const formattedTime = startDate.toLocaleTimeString('ko-KR', {
+            const formattedTime = startDate.toLocaleTimeString(locale, {
                 hour: '2-digit',
                 minute: '2-digit'
             });
             
             detailsHTML += `
                 <div class="detail-item">
-                    <span class="detail-label">날짜:</span>
+                    <span class="detail-label">${chrome.i18n.getMessage('date')}</span>
                     <span class="detail-value">${formattedDate}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">시간:</span>
+                    <span class="detail-label">${chrome.i18n.getMessage('time')}</span>
                     <span class="detail-value">${formattedTime}</span>
                 </div>
             `;
@@ -299,7 +319,7 @@ function showSuccessMessage(message, data = null) {
         if (data.location) {
             detailsHTML += `
                 <div class="detail-item">
-                    <span class="detail-label">장소:</span>
+                    <span class="detail-label">${chrome.i18n.getMessage('location')}</span>
                     <span class="detail-value">${data.location}</span>
                 </div>
             `;
@@ -316,7 +336,7 @@ function showSuccessMessage(message, data = null) {
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                     </svg>
-                    캘린더에서 보기
+                    ${chrome.i18n.getMessage('viewInCalendar')}
                 </button>
             `;
         }
@@ -326,7 +346,7 @@ function showSuccessMessage(message, data = null) {
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
-                새 일정 등록
+                ${chrome.i18n.getMessage('addNewSchedule')}
             </button>
         `;
         
@@ -420,16 +440,16 @@ async function handleCalendarAction() {
             console.error('Calendar analysis failed:', response.error);
             hideLoading();
             if (response.error === 'extract_failed') {
-                showExtractFailedDialog(response.message || '일정 정보를 추출할 수 없습니다', response.details);
+                showExtractFailedDialog(response.message || chrome.i18n.getMessage('unableToExtractInfo'), response.details);
             } else {
-                showExtractFailedDialog(response.error || '일정 처리 중 오류가 발생했습니다');
+                showExtractFailedDialog(response.error || chrome.i18n.getMessage('errorProcessingSchedule'));
             }
         }
         
     } catch (error) {
         console.error('Calendar action error:', error);
         hideLoading();
-        showError('일정 처리 중 오류가 발생했습니다');
+        showError(chrome.i18n.getMessage('errorProcessingSchedule'));
     }
 }
 
@@ -458,7 +478,7 @@ async function openSidePanelWithData(eventData) {
                 
             } else {
                 console.error('Failed to send data to side panel:', response.error);
-                showError('사이드 패널에 데이터를 전달하는 중 오류가 발생했습니다.');
+                showError(chrome.i18n.getMessage('errorSendingToSidePanel'));
             }
         } catch (error) {
             console.error('Error sending data to side panel:', error);
@@ -467,7 +487,7 @@ async function openSidePanelWithData(eventData) {
         
     } catch (error) {
         console.error('Error opening side panel:', error);
-        showError('사이드 패널을 여는 중 오류가 발생했습니다.');
+        showError(chrome.i18n.getMessage('errorOpeningSidePanel'));
     }
 }
 
@@ -483,16 +503,16 @@ function showExtractFailedDialog(message, details) {
                     <svg class="w-6 h-6 text-red-500 mr-3" style="width: 1.5rem; height: 1.5rem; color: #ef4444; margin-right: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <h3 class="text-lg font-semibold text-gray-900" style="font-size: 1.125rem; font-weight: 600; color: #111827;">추출 실패</h3>
+                    <h3 class="text-lg font-semibold text-gray-900" style="font-size: 1.125rem; font-weight: 600; color: #111827;">${chrome.i18n.getMessage('extractFailed')}</h3>
                 </div>
                 <p class="text-gray-600 mb-4" style="color: #4b5563; margin-bottom: 1rem; line-height: 1.5;">${message}</p>
                 ${details ? `<p class="text-sm text-gray-500 mb-4" style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem; line-height: 1.5;">${details}</p>` : ''}
                 <div class="flex justify-end space-x-3" style="display: flex; justify-content: flex-end; gap: 0.75rem;">
                     <button id="retryBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 500; transition: background-color 0.2s;">
-                        다시 시도
+                        ${chrome.i18n.getMessage('retry')}
                     </button>
                     <button id="closeDialogBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400" style="padding: 0.5rem 1rem; background: #d1d5db; color: #374151; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 500; transition: background-color 0.2s;">
-                        닫기
+                        ${chrome.i18n.getMessage('close')}
                     </button>
                 </div>
             </div>

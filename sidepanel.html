@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>일정 편집 - ContextClipCalendar</title>
+    <title data-i18n="editSchedule">Edit Schedule - ContextClipCalendar</title>
     <style>
         * {
             margin: 0;
@@ -352,8 +352,8 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>
-            📅 일정 편집
+        <h1 data-i18n="editSchedule">
+            📅 Edit Schedule
         </h1>
         <button class="close-btn" id="closeBtn">
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,7 +365,7 @@
     <!-- Loading State -->
     <div class="loading" id="loadingState">
         <div class="spinner"></div>
-        <p>일정 정보를 분석하고 있습니다...</p>
+        <p data-i18n="analyzingSchedule">Analyzing schedule information...</p>
     </div>
 
     <!-- Error Message -->
@@ -381,11 +381,11 @@
 
     <!-- Action Buttons (Fixed at top) -->
     <div class="action-buttons" style="position: sticky; top: 0; z-index: 20; background: white; border-bottom: 1px solid #e5e7eb; margin: 0; padding: 1rem 1.5rem;">
-        <button class="btn btn-secondary" id="cancelBtn">
-            취소
+        <button class="btn btn-secondary" id="cancelBtn" data-i18n="cancel">
+            Cancel
         </button>
-        <button class="btn btn-primary" id="saveBtn">
-            저장
+        <button class="btn btn-primary" id="saveBtn" data-i18n="save">
+            Save
         </button>
     </div>
 
@@ -393,71 +393,71 @@
     <div class="container" id="mainContainer">
         <!-- Basic Information -->
         <div class="form-section">
-            <h2>
-                📝 기본 정보
+            <h2 data-i18n="basicInformation">
+                📝 Basic Information
             </h2>
             
             <div class="form-group">
-                <label for="eventTitle">일정 제목 *</label>
-                <input type="text" id="eventTitle" placeholder="일정 제목을 입력하세요" required>
+                <label for="eventTitle" data-i18n="eventTitle">Event Title *</label>
+                <input type="text" id="eventTitle" data-i18n-placeholder="eventTitlePlaceholder" placeholder="Enter event title" required>
             </div>
 
             <div class="form-group">
-                <label for="eventDescription">설명</label>
-                <textarea id="eventDescription" placeholder="일정에 대한 설명을 입력하세요"></textarea>
+                <label for="eventDescription" data-i18n="description">Description</label>
+                <textarea id="eventDescription" data-i18n-placeholder="descriptionPlaceholder" placeholder="Enter description for the event"></textarea>
             </div>
         </div>
 
         <!-- Date & Time -->
         <div class="form-section">
-            <h2>
-                🕐 날짜 및 시간
+            <h2 data-i18n="dateAndTime">
+                🕐 Date & Time
             </h2>
             
             <div class="form-group">
                 <div class="checkbox-group">
                     <input type="checkbox" id="allDay">
-                    <label for="allDay">종일</label>
+                    <label for="allDay" data-i18n="allDay">All Day</label>
                 </div>
             </div>
 
             <div class="datetime-group">
                 <div class="form-group">
-                    <label for="startDateTime">시작</label>
+                    <label for="startDateTime" data-i18n="start">Start</label>
                     <input type="datetime-local" id="startDateTime" required>
                 </div>
                 <div class="form-group">
-                    <label for="endDateTime">종료</label>
+                    <label for="endDateTime" data-i18n="end">End</label>
                     <input type="datetime-local" id="endDateTime" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="recurrence">반복</label>
+                <label for="recurrence" data-i18n="recurrence">Recurrence</label>
                 <select id="recurrence">
-                    <option value="">반복 없음</option>
-                    <option value="daily">매일</option>
-                    <option value="weekly">매주</option>
-                    <option value="monthly">매월</option>
-                    <option value="yearly">매년</option>
+                    <option value="" data-i18n="noRecurrence">No Recurrence</option>
+                    <option value="daily" data-i18n="daily">Daily</option>
+                    <option value="weekly" data-i18n="weekly">Weekly</option>
+                    <option value="monthly" data-i18n="monthly">Monthly</option>
+                    <option value="yearly" data-i18n="yearly">Yearly</option>
                 </select>
             </div>
         </div>
 
         <!-- Location & Attendees -->
         <div class="form-section">
-            <h2>
-                📍 장소 및 참석자
+            <h2 data-i18n="locationAndAttendees">
+                📍 Location & Attendees
             </h2>
             
             <div class="form-group">
-                <label for="eventLocation">장소</label>
-                <input type="text" id="eventLocation" placeholder="회의실, 주소, 온라인 링크 등을 입력하세요">
+                <label for="eventLocation" data-i18n="location">Location</label>
+                <input type="text" id="eventLocation" data-i18n-placeholder="locationPlaceholder" placeholder="Enter meeting room, address, online link, etc.">
             </div>
 
             <div class="form-group">
-                <label for="attendeeInput">참석자</label>
-                <input type="text" id="attendeeInput" placeholder="이메일 주소를 입력하고 Enter를 누르세요">
+                <label for="attendeeInput" data-i18n="attendees">Attendees</label>
+                <input type="text" id="attendeeInput" data-i18n-placeholder="attendeePlaceholder" placeholder="Enter email address and press Enter">
                 <div class="attendee-list" id="attendeeList">
                     <!-- Attendee tags will be dynamically added here -->
                 </div>
@@ -466,19 +466,19 @@
 
         <!-- Notifications -->
         <div class="form-section">
-            <h2>
-                🔔 알림 설정
+            <h2 data-i18n="notificationSettings">
+                🔔 Notification Settings
             </h2>
             
             <div class="form-group">
-                <label for="reminder">알림</label>
+                <label for="reminder" data-i18n="reminder">Reminder</label>
                 <select id="reminder">
-                    <option value="0">알림 없음</option>
-                    <option value="5">5분 전</option>
-                    <option value="15" selected>15분 전</option>
-                    <option value="30">30분 전</option>
-                    <option value="60">1시간 전</option>
-                    <option value="1440">1일 전</option>
+                    <option value="0" data-i18n="noReminder">No Reminder</option>
+                    <option value="5" data-i18n-minutes="5">5 minutes before</option>
+                    <option value="15" selected data-i18n-minutes="15">15 minutes before</option>
+                    <option value="30" data-i18n-minutes="30">30 minutes before</option>
+                    <option value="60" data-i18n="oneHourBefore">1 hour before</option>
+                    <option value="1440" data-i18n="oneDayBefore">1 day before</option>
                 </select>
             </div>
         </div>

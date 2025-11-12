@@ -3,14 +3,26 @@
 
 console.log('ContextClipCalendar LLM utilities loaded');
 
-// Gemini API utility module for content scripts
+/**
+ * Gemini API utility module for content scripts
+ * @class GeminiAPI
+ */
 class GeminiAPI {
+    /**
+     * Create a GeminiAPI instance
+     * @param {string} apiKey - Gemini API key from Google AI Studio
+     */
     constructor(apiKey) {
         this.apiKey = apiKey;
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
     }
 
-    // Basic API call function (content script version)
+    /**
+     * Call Gemini API with a prompt
+     * @param {string} prompt - The prompt text to send to the API
+     * @param {Object} options - Optional parameters (temperature, maxOutputTokens, etc.)
+     * @returns {Promise<string>} The API response text
+     */
     async callAPI(prompt, options = {}) {
         if (!this.apiKey) {
             throw new Error('Gemini API key is not set.');
@@ -85,9 +97,21 @@ class GeminiAPI {
         }
     }
 
-    // Extract schedule information (content script version)
-    async extractCalendarInfo(text) {
-        const prompt = `
+    // Detect language of input text
+    detectLanguage(text) {
+        // Simple heuristic: check for Korean characters
+        const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+        return koreanRegex.test(text) ? 'ko' : 'en';
+    }
+
+    // Generate calendar extraction prompt based on language
+    generateCalendarPrompt(text, language = 'en') {
+        const locale = navigator.language || 'en-US';
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const currentDate = new Date();
+        
+        if (language === 'ko') {
+            return `
 다음 텍스트를 분석하여 캘린더에 저장할 일정 정보를 정확하게 추출해주세요.
 
 텍스트: "${text}"
@@ -120,8 +144,8 @@ class GeminiAPI {
    - 이메일 주소나 이름으로 된 참석자 목록
    - "참석자:", "참가자:", "함께:" 등의 키워드 뒤에 오는 사람들
 
-현재 시간: ${new Date().toISOString()}
-현재 날짜: ${new Date().toLocaleDateString('ko-KR')}
+현재 시간: ${currentDate.toISOString()}
+현재 날짜: ${currentDate.toLocaleDateString(locale)}
 
 중요: 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트나 설명은 포함하지 마세요.
 
@@ -138,13 +162,79 @@ class GeminiAPI {
 주의사항:
 - 반드시 유효한 JSON 형식으로만 응답하세요
 - 날짜/시간 형식은 ISO 8601 표준을 따르세요 (YYYY-MM-DDTHH:MM:SS)
-- 시간대는 한국 시간(Asia/Seoul)을 기준으로 하세요
+- 시간대는 ${timeZone}을 기준으로 하세요
 - 제목은 50자 이내로 간결하게 작성하세요
 - 텍스트에 날짜/시간 정보가 없으면 현재 시간 기준으로 설정하세요
 - JSON 외의 다른 텍스트는 절대 포함하지 마세요
 - 마크다운 코드 블록(\`\`\`)을 사용하지 마세요
 - 응답은 순수한 JSON 객체만 포함해야 합니다
 `;
+        } else {
+            return `
+Please analyze the following text and accurately extract calendar event information to be saved.
+
+Text: "${text}"
+
+Analysis Requirements:
+
+1. Title Extraction:
+   - Analyze the context of the text to extract the most appropriate event title
+   - If there is a meeting name, appointment name, event name, etc., use that first
+   - If not, combine key keywords from the text to create a concise and clear title
+   - Keep the title within 50 characters and clearly express the nature of the event
+
+2. Date/Time Information Analysis:
+   - Accurately identify the date and time specified in the text
+   - Calculate relative expressions like "tomorrow", "next Monday", "3 PM" based on the current time
+   - If only date is present without time: set to 9:00 AM
+   - If only time is present without date: set to today's date
+   - Extract both start and end times (if end time is missing, set to start time + 1 hour)
+
+3. Event Description Summary:
+   - Summarize the text into content suitable for calendar storage
+   - Extract only key information and write concisely
+   - Include important details from the original text
+
+4. Location Extraction:
+   - Meeting rooms, addresses, online platforms, building names, etc.
+   - Extract location-related information if present in the text
+
+5. Attendees Extraction:
+   - List of attendees by email address or name
+   - People following keywords like "attendees:", "participants:", "with:", etc.
+
+Current Time: ${currentDate.toISOString()}
+Current Date: ${currentDate.toLocaleDateString(locale)}
+
+Important: You must respond ONLY in the JSON format below. Do not include any other text or explanations.
+
+{
+    "title": "Event Title",
+    "description": "Event Description",
+    "startDate": "YYYY-MM-DDTHH:MM:SS",
+    "endDate": "YYYY-MM-DDTHH:MM:SS", 
+    "location": "Location",
+    "attendees": ["attendee1", "attendee2"],
+    "reminder": "15 minutes before"
+}
+
+Notes:
+- You must respond in valid JSON format only
+- Date/time format must follow ISO 8601 standard (YYYY-MM-DDTHH:MM:SS)
+- Timezone should be based on ${timeZone}
+- Keep the title within 50 characters and concise
+- If no date/time information is in the text, set based on current time
+- Do not include any text other than JSON
+- Do not use markdown code blocks (\`\`\`)
+- The response must contain only a pure JSON object
+`;
+        }
+    }
+
+    // Extract schedule information (content script version)
+    async extractCalendarInfo(text) {
+        const language = this.detectLanguage(text);
+        const prompt = this.generateCalendarPrompt(text, language);
 
         try {
             const response = await this.callAPI(prompt, { temperature: 0.3 });
